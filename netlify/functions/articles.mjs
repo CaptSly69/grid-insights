@@ -1,4 +1,3 @@
-
 // Serves published articles from Neon to the website.
 // Needs one environment variable in Netlify: DATABASE_URL (your Neon connection string).
 import { neon } from "@neondatabase/serverless";
@@ -24,6 +23,7 @@ export default async (req) => {
     if (!slug) {
       const articles = await sql`
         SELECT a.title, a.slug, a.summary, a.domain, a.published_at,
+               GREATEST(1, round(array_length(regexp_split_to_array(trim(a.body_md), '\\s+'), 1) / 220.0))::int AS reading_minutes,
                (SELECT count(DISTINCT c.source_id)
                   FROM article_claims ac JOIN claims c ON c.id = ac.claim_id
                  WHERE ac.article_id = a.id)::int AS source_count
@@ -34,7 +34,8 @@ export default async (req) => {
     }
 
     const rows = await sql`
-      SELECT id, title, slug, summary, domain, body_md, disclaimer, published_at, updated_at
+      SELECT id, title, slug, summary, domain, body_md, disclaimer, published_at, updated_at,
+             GREATEST(1, round(array_length(regexp_split_to_array(trim(body_md), '\\s+'), 1) / 220.0))::int AS reading_minutes
         FROM articles WHERE slug = ${slug} AND status = 'published' LIMIT 1`;
     if (rows.length === 0) return json({ error: "not_found", message: "Article not found." }, 404);
     const article = rows[0];
