@@ -600,7 +600,17 @@ async function renderSettings() {
 /* ---------- router ---------- */
 async function route() {
   const h = location.hash || "#/topics";
-  try { await api("session"); } catch { return; } // shows login on 401
+  try { await api("session"); }
+  catch (e) {
+    if (e.quiet) return; // 401: the login form is already showing
+    topbar.hidden = true;
+    app.replaceChildren(el("div", { class: "login" }, el("div", { class: "panel" },
+      el("h1", { text: "The admin can't start" }),
+      el("p", { text: e.message }),
+      el("p", { class: "muted small", text: "Check the environment variables in Netlify (ADMIN_PASSWORD and DATABASE_URL), then redeploy under Deploys > Trigger deploy." }),
+      el("button", { class: "btn primary", type: "button", text: "Try again", onclick: () => route() }))));
+    return;
+  }
   topbar.hidden = false;
   const [, tab, sub] = h.match(/^#\/(\w+)(?:\/(\d+))?/) || [];
   const current = ["topics", "review", "runs", "settings"].includes(tab) ? tab : "topics";
