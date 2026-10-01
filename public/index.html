@@ -3,31 +3,40 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Strategy Notes</title>
-<meta name="description" content="Plain-language guides to crypto strategies, with a source behind every fact.">
+<title>GRID Insights | Philippine real estate, explained</title>
+<meta name="description" content="Plain-language guides to the Philippine real estate market from GRID Property Ventures, with a source behind every fact.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;0,7..72,700;1,7..72,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cantata+One&family=Judson:ital,wght@0,400;0,700;1,400&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #FAFAFA;
+  /* GRID brand palette */
+  --nile: #1C335E; --muesli: #BE8562; --midnight: #0E192F; --deep-code: #141545;
+  --burly: #E2B985; --iron: #D2D2D2;
+  --bg: #FFFFFF;
   --card: #FFFFFF;
-  --ink: #09090B;
-  --muted: #71717A;
-  --border: #E4E4E7;
-  --subtle: #F4F4F5;
-  --accent: #15775B;
-  --accent-soft: #E3F2EC;
-  --glow: rgba(21, 119, 91, 0.10);
-  --sans: "Geist", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --serif: "Literata", Georgia, "Times New Roman", serif;
+  --ink: #0E192F;
+  --muted: #5A6275;
+  --border: #D2D2D2;
+  --subtle: #F7F2EB;
+  --accent: #1C335E;
+  --accent-2: #BE8562;
+  --accent-soft: #F5E8D6;
+  --on-accent: #FFFFFF;
+  --glow: rgba(190, 133, 98, 0.14);
+  --bar-bg: #1C335E; --bar-ink: #FFFFFF; --bar-muted: #D2D2D2;
+  --display: "Cantata One", Georgia, "Times New Roman", serif;
+  --sans: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --serif: "Judson", Georgia, "Times New Roman", serif;
   --radius: 14px;
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #09090B; --card: #111114; --ink: #FAFAFA; --muted: #A1A1AA; --border: #27272A;
-    --subtle: #18181B; --accent: #5FD0A8; --accent-soft: #10291F; --glow: rgba(95, 208, 168, 0.10);
+    --bg: #0E192F; --card: #141545; --ink: #FFFFFF; --muted: #D2D2D2; --border: #1C335E;
+    --subtle: #16264A; --accent: #E2B985; --accent-2: #BE8562; --accent-soft: rgba(226, 185, 133, 0.16);
+    --on-accent: #0E192F; --glow: rgba(226, 185, 133, 0.12);
+    --bar-bg: #0E192F; --bar-ink: #FFFFFF; --bar-muted: #D2D2D2;
     color-scheme: dark;
   }
 }
@@ -43,26 +52,28 @@ button { font: inherit; }
 
 /* Top bar */
 .topbar { position: sticky; top: 0; z-index: 20; padding-top: env(safe-area-inset-top, 0);
-  background: color-mix(in srgb, var(--bg) 82%, transparent); backdrop-filter: saturate(160%) blur(10px);
-  -webkit-backdrop-filter: saturate(160%) blur(10px); border-bottom: 1px solid var(--border); }
-.topbar .shell { display: flex; align-items: center; gap: 1rem; min-height: 3.75rem; }
-.brand { font: 700 1.05rem var(--sans); letter-spacing: -0.02em; color: var(--ink); text-decoration: none; display: flex; align-items: center; gap: 0.55rem; }
-.brand-mark { width: 1.4rem; height: 1.4rem; border-radius: 6px; background: var(--accent); color: var(--bg);
-  display: grid; place-items: center; font: 700 0.72rem var(--sans); }
+  background: var(--bar-bg); color: var(--bar-ink); border-bottom: 1px solid color-mix(in srgb, var(--burly) 35%, transparent); }
+.topbar .shell { display: flex; align-items: center; gap: 1rem; min-height: 4rem; }
+.brand { color: var(--bar-ink); text-decoration: none; display: flex; align-items: baseline; gap: 0.6rem; }
+.brand-word { font: 400 1.55rem/1 var(--display); letter-spacing: 0.08em; }
+.brand-sub { font: italic 400 1.05rem var(--serif); color: var(--burly); }
 .topbar .spacer { flex: 1; }
-.topbar .count { color: var(--muted); font-size: 0.88rem; }
+.topbar .count { color: var(--bar-muted); font-size: 0.88rem; }
 .search { position: relative; width: min(20rem, 45vw); }
-.search input { width: 100%; font: 0.92rem var(--sans); color: var(--ink); background: var(--card);
-  border: 1px solid var(--border); border-radius: 10px; padding: 0.5rem 0.8rem; }
-.search input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
-.nav-link { font-size: 0.9rem; font-weight: 500; color: var(--ink); text-decoration: none;
-  border: 1px solid var(--border); background: var(--card); border-radius: 10px; padding: 0.42rem 0.8rem; }
-.nav-link:hover { border-color: var(--accent); }
-.progress { position: absolute; left: 0; bottom: -1px; height: 2px; width: 0; background: var(--accent); }
+.search input { width: 100%; font: 0.9rem var(--sans); color: #0E192F; background: #FFFFFF;
+  border: 1px solid transparent; border-radius: 10px; padding: 0.5rem 0.8rem; }
+.search input::placeholder { color: #5A6275; }
+.search input:focus { outline: 2px solid var(--burly); outline-offset: 1px; }
+.nav-link { font-size: 0.88rem; font-weight: 500; color: var(--bar-ink); text-decoration: none;
+  border: 1px solid color-mix(in srgb, var(--bar-ink) 40%, transparent); border-radius: 10px; padding: 0.42rem 0.85rem; }
+.nav-link:hover { border-color: var(--burly); color: var(--burly); }
+.topbar :focus-visible { outline-color: var(--burly); }
+.progress { position: absolute; left: 0; bottom: -1px; height: 3px; width: 0; background: var(--muesli); }
 
 /* Home intro */
 .intro { padding: clamp(2rem, 5vw, 3.5rem) 0 1.75rem; display: grid; gap: 0.6rem; }
-.intro h1 { margin: 0; font: 700 clamp(2rem, 4.6vw, 3.4rem)/1.05 var(--sans); letter-spacing: -0.035em; max-width: 18ch; }
+.intro h1 { margin: 0; font: 400 clamp(2rem, 4.6vw, 3.3rem)/1.12 var(--display); color: var(--accent); max-width: 20ch; }
+.intro .rule { width: 4rem; height: 3px; background: var(--muesli); border-radius: 2px; margin: 0.35rem 0 0.25rem; }
 .intro p { margin: 0; color: var(--muted); font-size: 1.08rem; max-width: 46rem; }
 
 /* Cards */
@@ -79,7 +90,7 @@ button { font: inherit; }
 .cover svg { width: 100%; height: 100%; display: block; }
 .card-body { display: flex; flex-direction: column; gap: 0.6rem; padding: 1.15rem 1.25rem 1.2rem; flex: 1; }
 .card-meta { display: flex; flex-wrap: wrap; gap: 0.35rem 0.9rem; color: var(--muted); font-size: 0.82rem; }
-.card h2 { margin: 0; font: 600 1.14rem/1.35 var(--sans); letter-spacing: -0.015em;
+.card h2 { margin: 0; font: 400 1.16rem/1.38 var(--display); letter-spacing: 0;
   display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .card h2 a { color: var(--ink); text-decoration: none; }
 .card h2 a:focus-visible { outline: none; }
@@ -87,13 +98,14 @@ button { font: inherit; }
 .card p { margin: 0; color: var(--muted); font-size: 0.94rem;
   display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .card-foot { margin-top: auto; padding-top: 0.5rem; display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
+.badge.latest { background: var(--muesli); color: #0E192F; }
 .badge { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.78rem; font-weight: 600;
   color: var(--accent); background: var(--accent-soft); border-radius: 999px; padding: 0.2rem 0.6rem; white-space: nowrap; }
 .read { font-size: 0.86rem; font-weight: 600; color: var(--ink); }
 .card:hover .read { color: var(--accent); }
 
 .card.featured { grid-column: 1 / -1; flex-direction: row; min-height: 18rem; }
-.card.featured .cover { aspect-ratio: auto; width: 44%; border-bottom: 0; border-right: 1px solid var(--border); }
+.card.featured .cover { aspect-ratio: auto; width: 44%; border-bottom: 0; border-right: 1px solid var(--border); background: var(--nile); }
 .card.featured .card-body { padding: clamp(1.4rem, 3vw, 2.4rem); gap: 0.85rem; justify-content: center; }
 .card.featured h2 { font-size: clamp(1.45rem, 2.4vw, 2rem); line-height: 1.2; letter-spacing: -0.025em; }
 .card.featured p { font-size: 1.02rem; -webkit-line-clamp: 4; max-width: 44rem; }
@@ -133,14 +145,15 @@ button { font: inherit; }
 .src-list .pub { display: block; color: var(--muted); font-size: 0.8rem; }
 
 article .back { font-size: 0.88rem; font-weight: 500; text-decoration: none; }
-article h1 { font: 700 clamp(1.9rem, 4vw, 2.75rem)/1.12 var(--serif); letter-spacing: -0.02em; margin: 1rem 0 0.9rem; }
-.dek { font: 400 1.18rem/1.55 var(--serif); color: var(--muted); margin: 0 0 1.25rem; }
+article h1 { font: 400 clamp(1.9rem, 4vw, 2.7rem)/1.18 var(--display); color: var(--accent); margin: 1rem 0 0.9rem; }
+.dek { font: italic 400 1.28rem/1.5 var(--serif); color: var(--muted); margin: 0 0 1.25rem; }
 .byline { display: flex; flex-wrap: wrap; gap: 0.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
 .chip { font-size: 0.82rem; color: var(--muted); border: 1px solid var(--border); background: var(--card); border-radius: 999px; padding: 0.22rem 0.7rem; }
 .chip.accent { color: var(--accent); border-color: transparent; background: var(--accent-soft); font-weight: 600; text-decoration: none; }
-.body { font: 400 1.075rem/1.75 var(--serif); }
-.body h2 { font: 600 1.45rem/1.3 var(--serif); letter-spacing: -0.01em; margin: 2.6rem 0 0.7rem; }
-.body h3 { font: 600 1.15rem var(--serif); margin: 2rem 0 0.5rem; }
+.body { font: 400 1.02rem/1.85 var(--sans); }
+.body h2 { font: 400 1.5rem/1.3 var(--display); color: var(--accent); margin: 2.6rem 0 0.7rem; padding-top: 0.2rem; }
+.body h2::before { content: ""; display: block; width: 2.5rem; height: 2px; background: var(--muesli); margin-bottom: 0.7rem; }
+.body h3 { font: 700 1.15rem var(--serif); margin: 2rem 0 0.5rem; }
 .body p, .body li { max-width: 70ch; }
 .body ul, .body ol { padding-left: 1.3rem; }
 .body li { margin: 0.4rem 0; }
@@ -164,12 +177,16 @@ article h1 { font: 700 clamp(1.9rem, 4vw, 2.75rem)/1.12 var(--serif); letter-spa
 .disclaimer { margin-top: 2rem; padding: 1rem 1.15rem; border-radius: 12px; background: var(--card);
   border: 1px solid var(--border); color: var(--muted); font-size: 0.88rem; }
 .more { padding: 2.5rem 0 1rem; border-top: 1px solid var(--border); margin-top: 2.5rem; }
-.more h2 { font: 600 1.2rem var(--sans); letter-spacing: -0.01em; margin: 0 0 1.25rem; }
+.more h2 { font: 400 1.35rem var(--display); color: var(--accent); margin: 0 0 1.25rem; }
 .more .grid { padding-bottom: 1rem; }
 
 .state { padding: 4rem 0; color: var(--muted); max-width: 40rem; }
-.state h2 { color: var(--ink); font: 600 1.4rem var(--sans); margin: 0 0 0.5rem; }
-footer { border-top: 1px solid var(--border); color: var(--muted); font-size: 0.85rem; padding: 1.75rem 0 2.5rem; }
+.state h2 { color: var(--accent); font: 400 1.45rem var(--display); margin: 0 0 0.5rem; }
+footer { background: var(--midnight); color: var(--iron); font-size: 0.85rem; padding: 2rem 0 2.75rem; margin-top: 2rem;
+  border-top: 3px solid var(--muesli); }
+footer .foot { display: flex; flex-wrap: wrap; gap: 0.75rem 2rem; align-items: baseline; justify-content: space-between; }
+footer .foot-brand { font: 400 1.25rem var(--display); color: #FFFFFF; letter-spacing: 0.08em; }
+footer .foot-brand span { font: italic 400 1rem var(--serif); color: var(--burly); letter-spacing: 0; margin-left: 0.4rem; }
 
 @media (prefers-reduced-motion: no-preference) {
   .card, .card::before { transition: border-color 0.2s ease, opacity 0.25s ease; }
@@ -181,23 +198,23 @@ footer { border-top: 1px solid var(--border); color: var(--muted); font-size: 0.
 <body>
 <header class="topbar">
   <div class="shell">
-    <a class="brand" href="#/"><span class="brand-mark" aria-hidden="true">SN</span><span id="brand-name">Strategy Notes</span></a>
+    <a class="brand" href="#/" aria-label="GRID Insights home"><span class="brand-word">GRID</span><span class="brand-sub" id="brand-name">Insights</span></a>
     <span class="spacer"></span>
     <div id="topbar-tools"></div>
   </div>
   <div class="progress" id="progress" hidden></div>
 </header>
 <main class="shell" id="app" aria-live="polite"></main>
-<footer><div class="shell">Educational content only. Nothing here is financial advice.</div></footer>
+<footer><div class="shell foot"><span class="foot-brand">GRID<span>Property Ventures</span></span><span>General information only. Not legal, tax or investment advice. &copy; <span id="year">2026</span> GRID Property Ventures, Inc.</span></div></footer>
 
 <script src="marked.umd.js"></script>
 <script>
-const SITE_NAME = "Strategy Notes";
+const SITE_NAME = "GRID Insights";
 const WORDS_PER_MINUTE = 220;
 const app = document.getElementById("app");
 const tools = document.getElementById("topbar-tools");
 const progress = document.getElementById("progress");
-document.getElementById("brand-name").textContent = SITE_NAME;
+document.getElementById("year").textContent = new Date().getFullYear();
 
 const el = (tag, attrs = {}, ...children) => {
   const node = document.createElement(tag);
@@ -238,7 +255,7 @@ function cover(slug, featured = false) {
   for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
     const near = Math.abs(y - band - Math.sin(x / 2.4 + rand() * 0.3) * (featured ? 3.2 : 1.6)) < (featured ? 1.6 : 1.1);
     const on = near || rand() < 0.06;
-    dots += `<circle cx="${20 + x * gap}" cy="${16 + y * gap}" r="${on ? r + 0.6 : r * 0.62}" fill="${on ? "var(--accent)" : "var(--border)"}" opacity="${on ? 0.9 : 1}"/>`;
+    dots += `<circle cx="${20 + x * gap}" cy="${16 + y * gap}" r="${on ? r + 0.6 : r * 0.62}" fill="${featured ? (on ? (x % 3 === 0 ? "var(--muesli)" : "var(--burly)") : "rgba(255,255,255,0.16)") : (on ? (x % 4 === 0 ? "var(--muesli)" : "var(--accent)") : "var(--border)")}" opacity="${on ? 0.9 : 1}"/>`;
   }
   const wrap = el("div", { class: "cover", "aria-hidden": "true" });
   wrap.innerHTML = `<svg viewBox="0 0 ${w} ${hgt}" preserveAspectRatio="xMidYMid slice">${dots}</svg>`;
@@ -252,7 +269,7 @@ function cardFor(a, featured = false) {
     cover(a.slug, featured),
     el("div", { class: "card-body" },
       el("div", { class: "card-meta" },
-        featured ? el("span", { class: "badge", text: "Latest" }) : null,
+        featured ? el("span", { class: "badge latest", text: "Latest" }) : null,
         el("time", { datetime: a.published_at || "", text: fmtDate(a.published_at) }),
         mins ? el("span", { text: `${mins} min read` }) : null),
       el("h2", {}, el("a", { href: `#/article/${encodeURIComponent(a.slug)}`, text: a.title })),
@@ -285,8 +302,8 @@ async function renderHome() {
       return showState("No guides published yet", "New guides appear here once they're published.");
     }
     const intro = el("section", { class: "intro reveal" },
-      el("h1", { text: "Crypto strategies, explained with sources" }),
-      el("p", { text: "Plain-language guides to how each strategy works and what can go wrong. Every fact links to the page it came from." }));
+      el("h1", { text: "The Philippine property market, explained with sources" }), el("div", { class: "rule", "aria-hidden": "true" }),
+      el("p", { text: "Plain-language guides for buyers, investors and brokers: how each part of the market works, what the numbers say, and what can go wrong. Every fact links to the page it came from." }));
     const grid = el("ul", { class: "grid reveal" });
     articles.forEach((a, i) => grid.append(cardFor(a, i === 0)));
     spotlight(grid);

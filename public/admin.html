@@ -1,0 +1,624 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Admin | GRID Insights</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cantata+One&family=Judson:ital,wght@0,400;0,700;1,400&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* GRID brand palette */
+  --nile: #1C335E; --muesli: #BE8562; --midnight: #0E192F; --burly: #E2B985; --iron: #D2D2D2;
+  --bg: #F9F7F4; --card: #FFFFFF; --ink: #0E192F; --muted: #5A6275; --border: #D2D2D2; --subtle: #F3ECE2;
+  --accent: #1C335E; --accent-soft: #F5E8D6; --on-accent: #FFFFFF;
+  --warn: #8A4B22; --warn-soft: #F6E3D3; --bad: #B42318; --bad-soft: #FDECEA; --good: #1C335E; --good-soft: #E3E9F4;
+  --display: "Cantata One", Georgia, serif; --sans: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --serif: "Judson", Georgia, serif; --radius: 12px; color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #0E192F; --card: #141545; --ink: #FFFFFF; --muted: #D2D2D2; --border: #1C335E; --subtle: #16264A;
+    --accent: #E2B985; --accent-soft: rgba(226, 185, 133, 0.16); --on-accent: #0E192F;
+    --warn: #E2B985; --warn-soft: rgba(190, 133, 98, 0.22); --bad: #F7877C; --bad-soft: #2E1311; --good: #E2B985; --good-soft: rgba(226, 185, 133, 0.14);
+    color-scheme: dark; }
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 400 0.95rem/1.55 var(--sans); }
+a { color: var(--accent); text-underline-offset: 0.18em; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+button, input, textarea, select { font: inherit; color: inherit; }
+.shell { max-width: 92rem; margin: 0 auto; padding-inline: clamp(1rem, 3vw, 2.5rem); }
+
+/* top bar */
+.topbar { position: sticky; top: 0; z-index: 20; background: var(--nile); color: #FFFFFF; border-bottom: 3px solid var(--muesli); }
+@media (prefers-color-scheme: dark) { .topbar { background: var(--midnight); } }
+.topbar .shell { display: flex; align-items: center; gap: 0.75rem 1.25rem; min-height: 3.6rem; flex-wrap: wrap; padding-block: 0.4rem; }
+.brand { display: flex; align-items: baseline; gap: 0.5rem; color: #FFFFFF; text-decoration: none; }
+.brand-word { font: 400 1.4rem/1 var(--display); letter-spacing: 0.08em; }
+.brand-sub { font: italic 400 1rem var(--serif); color: var(--burly); }
+.brand-mark { width: 1.35rem; height: 1.35rem; border-radius: 6px; background: var(--accent); color: var(--bg); display: grid; place-items: center; font-size: 0.68rem; font-weight: 700; }
+.brand small { color: #D2D2D2; font: 500 0.78rem var(--sans); letter-spacing: 0.04em; }
+.tabs { display: flex; gap: 0.25rem; flex-wrap: wrap; }
+.tabs a { padding: 0.4rem 0.75rem; border-radius: 8px; color: #D2D2D2; text-decoration: none; font-weight: 500; }
+.tabs a:hover { color: #FFFFFF; background: rgba(255,255,255,0.08); }
+.tabs a[aria-current="page"] { color: #0E192F; background: var(--burly); }
+.topbar :focus-visible { outline-color: var(--burly); }
+.tabs .count { display: inline-block; min-width: 1.3rem; margin-left: 0.3rem; padding: 0 0.35rem; border-radius: 999px;
+  background: var(--muesli); color: #0E192F; font-size: 0.72rem; font-weight: 700; text-align: center; }
+.spacer { flex: 1; }
+.top-links { display: flex; gap: 0.5rem; align-items: center; }
+
+/* controls */
+.btn { display: inline-flex; align-items: center; gap: 0.35rem; border: 1px solid var(--border); background: var(--card);
+  border-radius: 8px; padding: 0.4rem 0.75rem; font-weight: 500; cursor: pointer; text-decoration: none; color: var(--ink); white-space: nowrap; }
+.btn:hover { border-color: color-mix(in srgb, var(--ink) 25%, var(--border)); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn.danger { color: var(--bad); }
+.btn.small { padding: 0.25rem 0.55rem; font-size: 0.85rem; }
+.btn[disabled] { opacity: 0.45; cursor: not-allowed; }
+.icon-btn { width: 2rem; height: 2rem; justify-content: center; padding: 0; }
+input[type=text], input[type=password], input[type=number], textarea {
+  width: 100%; background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 0.5rem 0.7rem; }
+input:focus, textarea:focus { outline: 2px solid var(--accent); outline-offset: 0; border-color: var(--accent); }
+textarea { resize: vertical; line-height: 1.5; }
+textarea.code { font: 0.86rem/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; min-height: 30rem; }
+label { display: grid; gap: 0.3rem; font-weight: 500; }
+label .hint { font-weight: 400; color: var(--muted); font-size: 0.84rem; }
+
+/* layout bits */
+main { padding: 1.75rem 0 4rem; }
+h1 { font: 400 1.75rem/1.2 var(--display); color: var(--accent); margin: 0 0 0.25rem; }
+h2 { font-size: 1.05rem; letter-spacing: -0.01em; margin: 0 0 0.75rem; }
+.lede { color: var(--muted); margin: 0 0 1.5rem; max-width: 46rem; }
+.panel { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.1rem 1.2rem; }
+.stack { display: grid; gap: 1.25rem; }
+.row { display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap; }
+.muted { color: var(--muted); }
+.small { font-size: 0.84rem; }
+.badge { display: inline-flex; align-items: center; border-radius: 999px; padding: 0.12rem 0.55rem; font-size: 0.76rem; font-weight: 600; white-space: nowrap;
+  background: var(--subtle); color: var(--muted); }
+.badge.published, .badge.verified, .badge.succeeded, .badge.done { background: var(--good-soft); color: var(--good); }
+.badge.needs_review, .badge.draft, .badge.in_progress, .badge.running, .badge.queued, .badge.held { background: var(--warn-soft); color: var(--warn); }
+.badge.failed, .badge.conflicted, .badge.unverified { background: var(--bad-soft); color: var(--bad); }
+.empty { color: var(--muted); padding: 1rem 0; }
+
+/* topics */
+.add-form { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 2fr) auto; gap: 0.6rem; align-items: end; }
+@media (max-width: 760px) { .add-form { grid-template-columns: 1fr; } }
+.queue { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.5rem; }
+.queue li { display: grid; grid-template-columns: 2.2rem minmax(0, 1fr) auto; gap: 0.75rem; align-items: center;
+  background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 0.6rem 0.75rem; }
+.queue .pos { font-weight: 700; color: var(--muted); text-align: center; font-variant-numeric: tabular-nums; }
+.queue li.next { border-color: var(--accent); }
+.queue li.next .pos { color: var(--accent); }
+.queue .title { font-weight: 600; }
+.queue .notes { color: var(--muted); font-size: 0.85rem; }
+.queue .actions { display: flex; gap: 0.35rem; flex-wrap: wrap; justify-content: flex-end; }
+@media (max-width: 640px) { .queue li { grid-template-columns: 1.8rem minmax(0, 1fr); } .queue .actions { grid-column: 2; justify-content: flex-start; } }
+details.group { border-top: 1px solid var(--border); padding-top: 1rem; }
+details.group summary { cursor: pointer; font-weight: 600; margin-bottom: 0.75rem; }
+
+/* review */
+.seg { display: inline-flex; border: 1px solid var(--border); border-radius: 9px; padding: 0.2rem; background: var(--card); margin-bottom: 1rem; }
+.seg button { border: 0; background: none; padding: 0.35rem 0.75rem; border-radius: 6px; cursor: pointer; color: var(--muted); font-weight: 500; }
+.seg button[aria-pressed="true"] { background: var(--subtle); color: var(--ink); }
+.list { display: grid; gap: 0.5rem; }
+.item { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.5rem 1rem; align-items: center; text-decoration: none; color: var(--ink);
+  background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 0.8rem 1rem; }
+.item:hover { border-color: var(--accent); }
+.item .t { font-weight: 600; }
+.item .m { color: var(--muted); font-size: 0.84rem; display: flex; gap: 0.4rem 0.9rem; flex-wrap: wrap; }
+
+.detail-head { display: grid; gap: 0.6rem; margin-bottom: 1rem; }
+.detail-head h1 { font: 400 clamp(1.45rem, 2.6vw, 1.95rem)/1.25 var(--display); }
+.actions-bar { display: flex; gap: 0.45rem; flex-wrap: wrap; }
+.checks { border-radius: 10px; padding: 0.75rem 0.95rem; margin-bottom: 1rem; }
+.checks.ok { background: var(--accent-soft); color: var(--accent); }
+.checks.bad { background: var(--bad-soft); color: var(--bad); }
+.checks ul { margin: 0.35rem 0 0; padding-left: 1.2rem; }
+.split { display: grid; gap: 1.25rem; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 1100px) { .split { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); align-items: start; }
+  .split > .claims-col { position: sticky; top: 4.4rem; max-height: calc(100vh - 5.4rem); overflow: auto; } }
+.preview { font: 0.98rem/1.8 var(--sans); }
+.preview h2 { font: 400 1.25rem var(--display); color: var(--accent); margin: 1.8rem 0 0.5rem; }
+.preview h2:first-child { margin-top: 0; }
+.preview p, .preview li { max-width: 70ch; }
+.preview .summary { color: var(--muted); font: italic 1.12rem/1.5 var(--serif); border-bottom: 1px solid var(--border); padding-bottom: 1rem; margin: 0 0 1rem; }
+.mk { font: 600 0.68rem/1 var(--sans); border: 0; border-radius: 0.5em; padding: 0.25em 0.45em; margin: 0 0.08em; vertical-align: 0.3em;
+  cursor: pointer; background: var(--accent-soft); color: var(--accent); }
+.mk.bad { background: var(--bad-soft); color: var(--bad); }
+.claim { border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem 0.85rem; background: var(--card); display: grid; gap: 0.4rem; scroll-margin-top: 5rem; }
+.claim.flash { outline: 2px solid var(--accent); }
+.claim.uncited { opacity: 0.72; }
+.claim .head { display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap; font-size: 0.82rem; color: var(--muted); }
+.claim .head strong { color: var(--ink); }
+.claim blockquote { margin: 0; padding: 0.15rem 0 0.15rem 0.7rem; border-left: 3px solid var(--muesli); font: 1rem/1.45 var(--serif); }
+.claim .src { font-size: 0.84rem; }
+.claim .links { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.claims-list { display: grid; gap: 0.6rem; }
+
+/* runs */
+.run { background: var(--card); border: 1px solid var(--border); border-radius: 10px; }
+.run summary { list-style: none; cursor: pointer; display: grid; gap: 0.35rem 1rem; padding: 0.75rem 0.95rem;
+  grid-template-columns: 3.2rem minmax(0, 1fr) auto; align-items: center; }
+.run summary::-webkit-details-marker { display: none; }
+.run .rid { font-weight: 700; color: var(--muted); font-variant-numeric: tabular-nums; }
+.run .meta { color: var(--muted); font-size: 0.84rem; display: flex; gap: 0.3rem 0.9rem; flex-wrap: wrap; }
+.run .body { border-top: 1px solid var(--border); padding: 0.75rem 0.95rem; display: grid; gap: 0.6rem; font-size: 0.88rem; }
+.run .err { background: var(--bad-soft); color: var(--bad); border-radius: 8px; padding: 0.55rem 0.7rem; }
+.log { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.3rem; }
+.log li { display: grid; grid-template-columns: 6.5rem minmax(0, 1fr); gap: 0.6rem; }
+.log .st { color: var(--muted); font-weight: 600; }
+
+/* settings */
+.form-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr)); }
+.form-grid .wide { grid-column: 1 / -1; }
+
+/* login */
+.login { min-height: 70vh; display: grid; place-items: center; }
+.login .panel { width: min(24rem, 100%); display: grid; gap: 0.9rem; }
+
+/* dialog + toast */
+dialog { border: 1px solid var(--border); border-radius: var(--radius); background: var(--card); color: var(--ink); padding: 1.2rem 1.3rem; width: min(32rem, calc(100vw - 2rem)); }
+dialog::backdrop { background: rgba(9, 9, 11, 0.45); }
+dialog ul { padding-left: 1.2rem; }
+.toast { position: fixed; left: 50%; bottom: 1.25rem; transform: translateX(-50%); z-index: 50; background: var(--midnight); color: #FFFFFF; border-left: 4px solid var(--muesli);
+  border-radius: 10px; padding: 0.6rem 1rem; font-weight: 500; box-shadow: 0 10px 30px rgba(0,0,0,0.2); max-width: calc(100vw - 2rem); }
+.toast.error { background: var(--bad); color: #fff; }
+</style>
+</head>
+<body>
+<header class="topbar" id="topbar" hidden>
+  <div class="shell">
+    <a class="brand" href="#/topics" aria-label="GRID Insights admin"><span class="brand-word">GRID</span><span class="brand-sub">Insights</span> <small>ADMIN</small></a>
+    <nav class="tabs" aria-label="Sections">
+      <a href="#/topics" data-tab="topics">Topics <span class="count" id="c-queued" hidden></span></a>
+      <a href="#/review" data-tab="review">Review <span class="count" id="c-review" hidden></span></a>
+      <a href="#/runs" data-tab="runs">Runs</a>
+      <a href="#/settings" data-tab="settings">Settings</a>
+    </nav>
+    <span class="spacer"></span>
+    <div class="top-links">
+      <a class="btn small" href="/" target="_blank" rel="noopener">View site</a>
+      <button class="btn small" id="logout" type="button">Sign out</button>
+    </div>
+  </div>
+</header>
+<main class="shell" id="app" aria-live="polite"></main>
+<dialog id="dialog"></dialog>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script src="marked.umd.js"></script>
+<script>
+const app = document.getElementById("app");
+const topbar = document.getElementById("topbar");
+const dialogEl = document.getElementById("dialog");
+
+/* ---------- helpers ---------- */
+const el = (tag, attrs = {}, ...children) => {
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (v == null || v === false) continue;
+    if (k === "class") n.className = v;
+    else if (k === "text") n.textContent = v;
+    else if (k.startsWith("on")) n.addEventListener(k.slice(2), v);
+    else n.setAttribute(k, v === true ? "" : v);
+  }
+  for (const c of children.flat()) if (c != null && c !== false) n.append(c);
+  return n;
+};
+const fmt = (iso) => iso ? new Date(iso).toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "";
+const fmtDay = (iso) => iso ? new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "";
+const label = (s) => ({ needs_review: "Needs review", in_progress: "In progress" }[s] || (s ? s[0].toUpperCase() + s.slice(1) : ""));
+const badge = (s, text) => el("span", { class: `badge ${s || ""}`, text: text || label(s) });
+const plural = (n, w) => `${n} ${w}${n === 1 ? "" : "s"}`;
+
+let toastTimer;
+function toast(msg, isError = false) {
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.className = "toast" + (isError ? " error" : ""); t.hidden = false;
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, isError ? 6000 : 3000);
+}
+
+async function api(path, { method = "GET", body } = {}) {
+  const headers = { accept: "application/json" };
+  if (method !== "GET") { headers["content-type"] = "application/json"; headers["x-admin-request"] = "1"; }
+  const res = await fetch("/api/admin/" + path, { method, headers, body: body ? JSON.stringify(body) : undefined, credentials: "same-origin" });
+  let data = {};
+  try { data = await res.json(); } catch { /* empty */ }
+  if (res.status === 401 && path !== "login") { showLogin(); throw Object.assign(new Error("Please sign in."), { quiet: true }); }
+  if (!res.ok) throw Object.assign(new Error(data.error || `Request failed (${res.status}).`), { status: res.status, data });
+  return data;
+}
+async function act(fn, okMsg) {
+  try { const r = await fn(); if (okMsg) toast(okMsg); return r; }
+  catch (e) { if (!e.quiet) toast(e.message, true); throw e; }
+}
+function confirmDialog(title, message, okText = "Confirm", list = null, danger = false) {
+  return new Promise((resolve) => {
+    dialogEl.replaceChildren(
+      el("h2", { text: title }),
+      message ? el("p", { class: "muted", text: message }) : null,
+      list ? el("ul", {}, list.map((x) => el("li", { text: x }))) : null,
+      el("div", { class: "row", style: "justify-content:flex-end; margin-top:1rem" },
+        el("button", { class: "btn", type: "button", text: "Cancel", onclick: () => { dialogEl.close(); resolve(false); } }),
+        el("button", { class: `btn ${danger ? "danger" : "primary"}`, type: "button", text: okText, onclick: () => { dialogEl.close(); resolve(true); } })));
+    dialogEl.addEventListener("cancel", () => resolve(false), { once: true });
+    dialogEl.showModal();
+  });
+}
+
+/* ---------- login ---------- */
+function showLogin() {
+  topbar.hidden = true;
+  document.title = "Sign in | GRID Insights admin";
+  const pw = el("input", { type: "password", id: "pw", autocomplete: "current-password", required: true });
+  const err = el("p", { class: "small", style: "color:var(--bad); margin:0", role: "alert" });
+  const form = el("form", { class: "panel" },
+    el("div", {}, el("h1", { text: "Sign in" }), el("p", { class: "muted small", style: "margin:0", text: "GRID Insights admin" })),
+    el("label", { for: "pw" }, "Password", pw),
+    err,
+    el("button", { class: "btn primary", type: "submit", text: "Sign in" }));
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    err.textContent = "";
+    try { await api("login", { method: "POST", body: { password: pw.value } }); route(); }
+    catch (ex) { err.textContent = ex.message; pw.select(); }
+  });
+  app.replaceChildren(el("div", { class: "login" }, form));
+  pw.focus();
+}
+document.getElementById("logout").addEventListener("click", async () => {
+  await api("logout", { method: "POST" }).catch(() => {});
+  showLogin();
+});
+
+async function refreshCounts() {
+  try {
+    const o = await api("overview");
+    const q = document.getElementById("c-queued"), r = document.getElementById("c-review");
+    q.textContent = o.queued; q.hidden = !o.queued;
+    r.textContent = o.to_review; r.hidden = !o.to_review;
+  } catch { /* counts are optional */ }
+}
+
+/* ---------- topics ---------- */
+async function renderTopics() {
+  document.title = "Topics | GRID Insights admin";
+  const { topics } = await api("topics");
+  const groups = { in_progress: [], queued: [], failed: [], skipped: [], done: [] };
+  topics.forEach((t) => (groups[t.status] || groups.done).push(t));
+
+  const title = el("input", { type: "text", id: "t-title", maxlength: "200", placeholder: "e.g. Condo rental yields in Makati vs BGC", required: true });
+  const notes = el("input", { type: "text", id: "t-notes", maxlength: "500", placeholder: "Optional: the angle to take" });
+  const form = el("form", { class: "add-form" },
+    el("label", { for: "t-title" }, "New topic", title),
+    el("label", { for: "t-notes" }, el("span", {}, "Notes ", el("span", { class: "hint", text: "(optional)" })), notes),
+    el("button", { class: "btn primary", type: "submit", text: "Add to queue" }));
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    await act(() => api("topics", { method: "POST", body: { title: title.value, notes: notes.value } }), "Topic added to the end of the queue.");
+    renderTopics(); refreshCounts();
+  });
+
+  const queueList = el("ol", { class: "queue" });
+  groups.queued.forEach((t, i) => {
+    const last = i === groups.queued.length - 1;
+    queueList.append(el("li", { class: i === 0 ? "next" : "" },
+      el("span", { class: "pos", text: String(i + 1) }),
+      el("div", {},
+        el("div", { class: "title" }, t.title, i === 0 ? el("span", { class: "badge queued", style: "margin-left:0.5rem", text: "Next" }) : null),
+        t.notes ? el("div", { class: "notes", text: t.notes }) : null),
+      el("div", { class: "actions" },
+        el("button", { class: "btn icon-btn", type: "button", "aria-label": `Move "${t.title}" up`, title: "Move up", disabled: i === 0,
+          onclick: async () => { await act(() => api(`topics/${t.id}/move`, { method: "POST", body: { direction: "up" } })); renderTopics(); } }, "↑"),
+        el("button", { class: "btn icon-btn", type: "button", "aria-label": `Move "${t.title}" down`, title: "Move down", disabled: last,
+          onclick: async () => { await act(() => api(`topics/${t.id}/move`, { method: "POST", body: { direction: "down" } })); renderTopics(); } }, "↓"),
+        el("button", { class: "btn small", type: "button", text: "Skip",
+          onclick: async () => { await act(() => api(`topics/${t.id}/status`, { method: "POST", body: { status: "skipped" } }), "Topic skipped."); renderTopics(); refreshCounts(); } }),
+        t.runs === 0 ? el("button", { class: "btn small danger", type: "button", text: "Delete",
+          onclick: async () => {
+            if (!(await confirmDialog("Delete this topic?", `"${t.title}" will be removed from the queue.`, "Delete", null, true))) return;
+            await act(() => api(`topics/${t.id}`, { method: "DELETE" }), "Topic deleted."); renderTopics(); refreshCounts();
+          } }) : null)));
+  });
+
+  const simpleList = (items, buttons) => {
+    if (!items.length) return el("p", { class: "empty", text: "None." });
+    return el("ul", { class: "queue" }, items.map((t) => el("li", {},
+      badge(t.status, ""),
+      el("div", {}, el("div", { class: "title", text: t.title }),
+        el("div", { class: "notes" }, `Updated ${fmt(t.updated_at)}`, t.runs ? `, ${plural(t.runs, "run")}` : "")),
+      el("div", { class: "actions" }, buttons(t)))));
+  };
+  const requeue = (t, where = "end") => el("button", { class: "btn small", type: "button", text: where === "front" ? "Retry next" : "Re-queue",
+    onclick: async () => {
+      if (t.status === "done" && !(await confirmDialog("Research this topic again?", "A new run will write a second article on this topic.", "Re-queue"))) return;
+      if (t.status === "in_progress" && !(await confirmDialog("Reset this topic?", "Only do this if the run has stopped. A run that is still working may get confused.", "Reset to queued"))) return;
+      await act(() => api(`topics/${t.id}/status`, { method: "POST", body: { status: "queued", position: where } }), "Topic queued.");
+      renderTopics(); refreshCounts();
+    } });
+  const articleLink = (t) => t.article_id ? el("a", { class: "btn small", href: `#/review/${t.article_id}`, text: "Open article" }) : null;
+
+  // Done topics show without the status badge column for compactness
+  const doneList = simpleList(groups.done, (t) => [articleLink(t), requeue(t)]);
+
+  app.replaceChildren(el("div", { class: "stack" },
+    el("div", {}, el("h1", { text: "Topics" }),
+      el("p", { class: "lede", text: "The scheduled writer takes the topic at the top of the queue each run. Reorder with the arrows; new topics go to the end." })),
+    el("section", { class: "panel" }, form),
+    groups.in_progress.length ? el("section", {}, el("h2", { text: "Running now" }), simpleList(groups.in_progress, (t) => [requeue(t, "front")])) : null,
+    el("section", {}, el("h2", { text: `Queue (${groups.queued.length})` }),
+      groups.queued.length ? queueList : el("p", { class: "empty", text: "The queue is empty, so the next run will have nothing to do. Add a topic above." })),
+    groups.failed.length ? el("section", {}, el("h2", { text: `Failed (${groups.failed.length})` }), simpleList(groups.failed, (t) => [requeue(t, "front"), requeue(t)])) : null,
+    groups.skipped.length ? el("details", { class: "group" }, el("summary", { text: `Skipped (${groups.skipped.length})` }),
+      simpleList(groups.skipped, (t) => [requeue(t), t.runs === 0 ? el("button", { class: "btn small danger", type: "button", text: "Delete",
+        onclick: async () => { await act(() => api(`topics/${t.id}`, { method: "DELETE" }), "Topic deleted."); renderTopics(); } }) : null])) : null,
+    el("details", { class: "group" }, el("summary", { text: `Done (${groups.done.length})` }), doneList)));
+}
+
+/* ---------- review list ---------- */
+let reviewFilter = "review";
+async function renderReviewList() {
+  document.title = "Review | GRID Insights admin";
+  const { articles } = await api("articles");
+  const toReview = articles.filter((a) => a.status === "draft" || a.status === "needs_review");
+  const published = articles.filter((a) => a.status === "published");
+  const shown = reviewFilter === "review" ? toReview : reviewFilter === "published" ? published : articles;
+
+  const seg = el("div", { class: "seg", role: "group", "aria-label": "Filter articles" },
+    [["review", `To review (${toReview.length})`], ["published", `Published (${published.length})`], ["all", `All (${articles.length})`]]
+      .map(([key, text]) => el("button", { type: "button", "aria-pressed": String(reviewFilter === key), text,
+        onclick: () => { reviewFilter = key; renderReviewList(); } })));
+
+  const list = shown.length ? el("div", { class: "list" }, shown.map((a) => el("a", { class: "item", href: `#/review/${a.id}` },
+    el("div", {}, el("div", { class: "t", text: a.title }),
+      el("div", { class: "m" },
+        el("span", { text: a.status === "published" ? `Published ${fmtDay(a.published_at)}` : `Written ${fmtDay(a.created_at)}` }),
+        el("span", { text: plural(a.claims, "cited claim") }),
+        a.auto_review ? el("span", { text: `Auto-review: ${a.auto_review}` }) : null)),
+    badge(a.status))))
+    : el("p", { class: "empty", text: reviewFilter === "review" ? "Nothing waiting for review." : "No articles here yet." });
+
+  app.replaceChildren(el("div", {},
+    el("h1", { text: "Review" }),
+    el("p", { class: "lede", text: "Drafts and held articles wait here. Open one to check each claim against its source, edit, and publish." }),
+    seg, list));
+}
+
+/* ---------- review detail ---------- */
+async function renderReviewDetail(id) {
+  const { article, claims, checks } = await api(`articles/${id}`);
+  document.title = `${article.title} | Review`;
+  const byId = new Map(claims.map((c) => [Number(c.id), c]));
+  let editing = false;
+
+  const changeStatus = async (status, okMsg, force = false) => {
+    try {
+      await api(`articles/${id}/status`, { method: "POST", body: { status, force } });
+      toast(okMsg); refreshCounts(); renderReviewDetail(id);
+    } catch (e) {
+      if (e.status === 409 && e.data?.problems && status === "published") {
+        const go = await confirmDialog("This article doesn't pass the checks", "You can fix these first, or publish anyway.", "Publish anyway", e.data.problems, true);
+        if (go) changeStatus(status, okMsg, true);
+      } else if (!e.quiet) toast(e.message, true);
+    }
+  };
+
+  const actions = el("div", { class: "actions-bar" },
+    article.status !== "published"
+      ? el("button", { class: "btn primary", type: "button", text: "Publish", onclick: () => changeStatus("published", "Published. It will appear on the site within a minute.") })
+      : el("button", { class: "btn", type: "button", text: "Unpublish", onclick: () => changeStatus("draft", "Unpublished.") }),
+    article.status !== "needs_review" ? el("button", { class: "btn", type: "button", text: "Hold for review", onclick: () => changeStatus("needs_review", "Held for review.") }) : null,
+    el("button", { class: "btn", type: "button", text: "Edit", onclick: () => { editing = !editing; draw(); } }),
+    el("button", { class: "btn", type: "button", text: "Re-run topic", onclick: async () => {
+      if (!(await confirmDialog("Re-run this topic?", "This article will be archived and its topic moved to the front of the queue, so the next run writes a fresh version.", "Re-run"))) return;
+      await act(() => api(`articles/${id}/rerun`, { method: "POST" }), "Topic moved to the front of the queue."); refreshCounts(); location.hash = "#/review";
+    } }),
+    article.status !== "archived" ? el("button", { class: "btn danger", type: "button", text: "Archive", onclick: async () => {
+      if (!(await confirmDialog("Archive this article?", "It will be hidden from the site and the review list. You can still open it from All.", "Archive", null, true))) return;
+      changeStatus("archived", "Archived.");
+    } }) : null,
+    article.status === "published" ? el("a", { class: "btn", href: `/#/article/${encodeURIComponent(article.slug)}`, target: "_blank", rel: "noopener", text: "View on site" }) : null);
+
+  const checksBox = checks.problems.length
+    ? el("div", { class: "checks bad", role: "status" }, el("strong", { text: `${plural(checks.problems.length, "problem")} found` }),
+        el("ul", {}, checks.problems.map((p) => el("li", { text: p }))))
+    : el("div", { class: "checks ok", role: "status" }, el("strong", { text: "All checks pass" }),
+        el("span", { text: `: ${checks.words} words, ${plural(checks.cited, "cited claim")}` }));
+
+  const auto = article.critic_report?.auto_review;
+  const autoNote = auto ? el("p", { class: "small muted", style: "margin:0" },
+    `Auto-review: ${auto.result}`, auto.problems?.length ? ` (${auto.problems.join("; ")})` : "",
+    auto.corrected?.length ? `, corrected claims ${auto.corrected.join(", ")}` : "") : null;
+
+  function claimCard(c) {
+    const methods = (c.check_notes || []).filter((n) => n.method).map((n) => n.method);
+    const q = (c.evidence_quote || "").split(/\s+/).slice(0, 14).join(" ");
+    return el("article", { class: "claim" + (c.cited ? "" : " uncited"), id: `claim-${c.id}` },
+      el("div", { class: "head" }, el("strong", { text: `c${c.id}` }), badge(c.status), el("span", { text: c.claim_type.replace("_", " ") }),
+        c.as_of ? el("span", { text: `as of ${fmtDay(c.as_of)}` }) : null, c.cited ? null : el("span", { text: "not cited" })),
+      el("div", { text: c.text }),
+      c.evidence_quote ? el("blockquote", { text: c.evidence_quote }) : null,
+      el("div", { class: "src muted" }, c.publisher ? `${c.publisher}: ` : "", el("a", { href: c.url, target: "_blank", rel: "noopener", text: c.source_title || c.url })),
+      methods.length ? el("div", { class: "small muted", text: `Checked by: ${[...new Set(methods)].join(", ")}` }) : null,
+      el("div", { class: "links" },
+        el("a", { class: "btn small", href: c.url, target: "_blank", rel: "noopener", text: "Open source" }),
+        q ? el("a", { class: "btn small", target: "_blank", rel: "noopener", text: "Search exact quote",
+          href: `https://www.google.com/search?q=${encodeURIComponent(`"${q}"`)}` }) : null));
+  }
+
+  function preview() {
+    const raw = article.body_md || "";
+    const cut = raw.lastIndexOf("\n---");
+    const main = cut === -1 ? raw : raw.slice(0, cut);
+    const withMarkers = main.replace(/\[c(\d+)\]/g, (m, n) => {
+      const ok = byId.get(Number(n))?.status === "verified";
+      return `<button type="button" class="mk${ok ? "" : " bad"}" data-claim="${n}" aria-label="Claim ${n}">c${n}</button>`;
+    });
+    const box = el("div", { class: "preview panel" });
+    box.innerHTML = marked.parse(withMarkers);
+    if (article.summary) box.prepend(el("p", { class: "summary", text: article.summary }));
+    box.addEventListener("click", (e) => {
+      const b = e.target.closest(".mk"); if (!b) return;
+      const card = document.getElementById(`claim-${b.dataset.claim}`);
+      if (!card) return toast(`Claim c${b.dataset.claim} isn't in this run.`, true);
+      card.scrollIntoView({ behavior: "smooth", block: "center" });
+      card.classList.add("flash"); setTimeout(() => card.classList.remove("flash"), 1500);
+    });
+    return box;
+  }
+
+  function editor() {
+    const t = el("input", { type: "text", id: "e-title", value: article.title });
+    const s = el("textarea", { id: "e-summary", rows: "3" }); s.value = article.summary || "";
+    const b = el("textarea", { id: "e-body", class: "code" }); b.value = article.body_md || "";
+    const form = el("form", { class: "panel stack" },
+      el("label", { for: "e-title" }, "Title", t),
+      el("label", { for: "e-summary" }, "Summary", s),
+      el("label", { for: "e-body" }, el("span", {}, "Article ", el("span", { class: "hint", text: "Markdown. Keep the ## headings, cite claims as [c123], and keep the disclaimer after the --- line." })), b),
+      el("div", { class: "row" }, el("button", { class: "btn primary", type: "submit", text: "Save changes" }),
+        el("button", { class: "btn", type: "button", text: "Cancel", onclick: () => { editing = false; draw(); } })));
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const r = await act(() => api(`articles/${id}`, { method: "PUT", body: { title: t.value, summary: s.value, body_md: b.value } }));
+      toast(r.checks.problems.length ? `Saved, with ${plural(r.checks.problems.length, "problem")} to fix.` : "Saved. All checks pass.", r.checks.problems.length > 0);
+      renderReviewDetail(id);
+    });
+    return form;
+  }
+
+  const cited = claims.filter((c) => c.cited), other = claims.filter((c) => !c.cited);
+  const claimsCol = el("aside", { class: "claims-col" },
+    el("h2", { text: `Cited claims (${cited.length})` }),
+    el("div", { class: "claims-list" }, cited.map(claimCard)),
+    other.length ? el("details", { class: "group", style: "margin-top:1rem" }, el("summary", { text: `Other claims from this run (${other.length})` }),
+      el("div", { class: "claims-list" }, other.map(claimCard))) : null);
+
+  function draw() {
+    app.replaceChildren(el("div", {},
+      el("div", { class: "detail-head" },
+        el("a", { href: "#/review", class: "small", text: "Back to review list" }),
+        el("div", { class: "row" }, badge(article.status), article.topic ? el("span", { class: "muted small", text: `Topic: ${article.topic}` }) : null,
+          el("span", { class: "muted small", text: `Updated ${fmt(article.updated_at)}` })),
+        el("h1", { text: article.title }),
+        autoNote, actions),
+      checksBox,
+      el("div", { class: "split" }, editing ? editor() : preview(), claimsCol)));
+  }
+  draw();
+}
+
+/* ---------- runs ---------- */
+async function renderRuns() {
+  document.title = "Runs | GRID Insights admin";
+  const { runs } = await api("runs");
+  const dur = (a, b) => { if (!a || !b) return ""; const m = Math.round((new Date(b) - new Date(a)) / 60000); return m < 1 ? "<1 min" : `${m} min`; };
+  const list = runs.length ? el("div", { class: "list" }, runs.map((r) => {
+    const c = r.claims || {};
+    const det = el("details", { class: "run" },
+      el("summary", {},
+        el("span", { class: "rid", text: `#${r.id}` }),
+        el("div", {}, el("div", { style: "font-weight:600", text: r.topic || "(topic removed)" }),
+          el("div", { class: "meta" },
+            el("span", { text: fmt(r.started_at) }), r.finished_at ? el("span", { text: dur(r.started_at, r.finished_at) }) : null,
+            el("span", { text: plural(r.sources || 0, "source") }),
+            el("span", { text: `${c.verified || 0} verified, ${c.unverified || 0} unverified, ${c.conflicted || 0} conflicted` }),
+            r.article ? el("span", {}, "Article: ", el("a", { href: `#/review/${r.article.id}`, text: label(r.article.status) })) : null)),
+        badge(r.status)),
+      el("div", { class: "body" }, el("p", { class: "muted", style: "margin:0", text: "Loading log" })));
+    det.addEventListener("toggle", async () => {
+      if (!det.open || det.dataset.loaded) return;
+      det.dataset.loaded = "1";
+      const body = det.querySelector(".body");
+      try {
+        const { run } = await api(`runs/${r.id}`);
+        const entries = Array.isArray(run.log) ? run.log : [];
+        body.replaceChildren(
+          run.error ? el("div", { class: "err", text: run.error }) : null,
+          entries.length ? el("ul", { class: "log" }, entries.map((x) => el("li", {},
+            el("span", { class: "st", text: x.stage || x.step || "" }),
+            el("span", { text: x.message || x.detail || JSON.stringify(x) }))))
+            : el("p", { class: "muted", style: "margin:0", text: run.error ? "" : "This run didn't save a step log." }));
+      } catch (e) { body.replaceChildren(el("p", { class: "muted", text: e.message })); }
+    });
+    return det;
+  })) : el("p", { class: "empty", text: "No runs yet." });
+  app.replaceChildren(el("div", {}, el("h1", { text: "Runs" }),
+    el("p", { class: "lede", text: "Every scheduled run, newest first. Open one to see its step log or error." }), list));
+}
+
+/* ---------- settings ---------- */
+async function renderSettings() {
+  document.title = "Settings | GRID Insights admin";
+  const { config, updated_at } = await api("settings");
+  const lines = (a) => (a || []).join("\n");
+  const toList = (v) => v.split("\n").map((x) => x.trim()).filter(Boolean);
+  const f = {};
+  const field = (key, text, hint, input, wide = false) => {
+    f[key] = input; input.id = `s-${key}`;
+    return el("label", { for: input.id, class: wide ? "wide" : "" }, el("span", {}, text, hint ? el("span", { class: "hint", text: ` ${hint}` }) : null), input);
+  };
+  const ta = (v, rows = 3) => { const t = el("textarea", { rows: String(rows) }); t.value = v || ""; return t; };
+  const num = (v, min, max) => el("input", { type: "number", value: String(v ?? ""), min: String(min), max: String(max) });
+
+  const form = el("form", { class: "panel stack" },
+    el("div", { class: "form-grid" },
+      field("audience", "Audience", "", ta(config.audience, 2), true),
+      field("tone", "Tone", "", ta(config.tone, 2), true),
+      field("prefer", "Preferred sources", "(one per line)", ta(lines(config.prefer), 4)),
+      field("avoid", "Sources to avoid", "(one per line)", ta(lines(config.avoid), 4)),
+      field("required_sections", "Required sections", "(one per line, in order)", ta(lines(config.required_sections), 7)),
+      field("banned_phrases", "Banned phrases", "(one per line)", ta(lines(config.banned_phrases), 7)),
+      field("min_words", "Minimum words", "", num(config.min_words, 200, 10000)),
+      field("max_words", "Maximum words", "", num(config.max_words, 300, 20000)),
+      field("stale_days", "Stale after (days)", "for prices and other changing figures", num(config.stale_days, 1, 3650)),
+      field("min_sources", "Minimum sources", "", num(config.min_sources, 1, 20)),
+      field("min_verified_claims", "Minimum verified claims", "", num(config.min_verified_claims, 1, 100)),
+      field("disclaimer", "Disclaimer", "added to the end of every article", ta(config.disclaimer, 3), true)),
+    el("div", { class: "row" }, el("button", { class: "btn primary", type: "submit", text: "Save settings" }),
+      updated_at ? el("span", { class: "muted small", text: `Last saved ${fmt(updated_at)}` }) : el("span", { class: "muted small", text: "Showing the default settings." })));
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const config = {
+      audience: f.audience.value, tone: f.tone.value, prefer: toList(f.prefer.value), avoid: toList(f.avoid.value),
+      required_sections: toList(f.required_sections.value), banned_phrases: toList(f.banned_phrases.value),
+      min_words: f.min_words.value, max_words: f.max_words.value, stale_days: f.stale_days.value,
+      min_sources: f.min_sources.value, min_verified_claims: f.min_verified_claims.value, disclaimer: f.disclaimer.value,
+    };
+    await act(() => api("settings", { method: "PUT", body: { config } }), "Settings saved. The next scheduled runs will use them.");
+    renderSettings();
+  });
+  app.replaceChildren(el("div", {}, el("h1", { text: "Settings" }),
+    el("p", { class: "lede", text: "The writer and reviewer tasks load these at the start of every run, and the review screen checks articles against them." }), form));
+}
+
+/* ---------- router ---------- */
+async function route() {
+  const h = location.hash || "#/topics";
+  try { await api("session"); } catch { return; } // shows login on 401
+  topbar.hidden = false;
+  const [, tab, sub] = h.match(/^#\/(\w+)(?:\/(\d+))?/) || [];
+  const current = ["topics", "review", "runs", "settings"].includes(tab) ? tab : "topics";
+  document.querySelectorAll(".tabs a").forEach((a) => { if (a.dataset.tab === current) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
+  app.replaceChildren(el("p", { class: "muted", text: "Loading" }));
+  refreshCounts();
+  try {
+    if (current === "review" && sub) await renderReviewDetail(Number(sub));
+    else if (current === "review") await renderReviewList();
+    else if (current === "runs") await renderRuns();
+    else if (current === "settings") await renderSettings();
+    else await renderTopics();
+  } catch (e) {
+    if (!e.quiet) app.replaceChildren(el("div", { class: "panel" }, el("h2", { text: "Something went wrong" }), el("p", { class: "muted", text: e.message })));
+  }
+}
+window.addEventListener("hashchange", route);
+route();
+</script>
+</body>
+</html>
