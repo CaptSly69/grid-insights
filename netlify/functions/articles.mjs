@@ -2,6 +2,9 @@
 // Needs one environment variable in Netlify: DATABASE_URL (your Neon connection string).
 import { neon } from "@neondatabase/serverless";
 
+// Which subject area this site shows. Override with a SITE_DOMAIN environment variable in Netlify.
+const SITE_DOMAIN = process.env.SITE_DOMAIN || "real_estate_ph";
+
 const json = (body, status = 200) =>
   new Response(JSON.stringify(body), {
     status,
@@ -28,7 +31,7 @@ export default async (req) => {
                   FROM article_claims ac JOIN claims c ON c.id = ac.claim_id
                  WHERE ac.article_id = a.id)::int AS source_count
           FROM articles a
-         WHERE a.status = 'published'
+         WHERE a.status = 'published' AND a.domain = ${SITE_DOMAIN}
          ORDER BY a.published_at DESC NULLS LAST`;
       return json({ articles });
     }
@@ -36,7 +39,7 @@ export default async (req) => {
     const rows = await sql`
       SELECT id, title, slug, summary, domain, body_md, disclaimer, published_at, updated_at,
              GREATEST(1, round(array_length(regexp_split_to_array(trim(body_md), '\\s+'), 1) / 220.0))::int AS reading_minutes
-        FROM articles WHERE slug = ${slug} AND status = 'published' LIMIT 1`;
+        FROM articles WHERE slug = ${slug} AND status = 'published' AND domain = ${SITE_DOMAIN} LIMIT 1`;
     if (rows.length === 0) return json({ error: "not_found", message: "Article not found." }, 404);
     const article = rows[0];
 
