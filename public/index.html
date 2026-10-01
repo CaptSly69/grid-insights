@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Strategy Notes</title>
+<meta name="description" content="Plain-language guides to crypto strategies, with a source behind every fact.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;0,7..72,700;1,7..72,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #F4F6F8;
+  --ink: #172030;
+  --muted: #5A6475;
+  --rule: #D8DDE5;
+  --accent: #1E6B57;
+  --accent-soft: #E1EFEA;
+  --card: #FFFFFF;
+  --serif: "Literata", Georgia, "Times New Roman", serif;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #121820; --ink: #E6EAF0; --muted: #9AA4B2; --rule: #2A3340;
+    --accent: #6CC3A6; --accent-soft: #1C2E29; --card: #18202B;
+    color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--paper); color: var(--ink);
+  font: 400 1.0625rem/1.7 var(--serif);
+  padding: env(safe-area-inset-top, 0) 0 env(safe-area-inset-bottom, 0);
+}
+a { color: var(--accent); text-underline-offset: 0.18em; }
+a:hover { text-decoration-thickness: 2px; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 3px; }
+
+.wrap { max-width: 44rem; margin: 0 auto; padding: 0 1.25rem; }
+
+/* Masthead */
+.masthead { padding: 3.5rem 0 2.5rem; border-bottom: 1px solid var(--rule); }
+.masthead a { color: inherit; text-decoration: none; }
+.site-name {
+  font-size: clamp(2.4rem, 7vw, 3.6rem); font-weight: 700; line-height: 1.02;
+  letter-spacing: -0.02em; margin: 0;
+}
+.tagline { margin: 0.9rem 0 0; color: var(--muted); font-size: 1.125rem; line-height: 1.5; max-width: 30rem; }
+.tagline .cite { vertical-align: 0.15em; }
+.masthead.compact { padding: 1.5rem 0 1.25rem; }
+.masthead.compact .site-name { font-size: 1.35rem; letter-spacing: -0.01em; }
+.masthead.compact .tagline { display: none; }
+
+/* Article list */
+.list { list-style: none; margin: 0; padding: 0; }
+.list li { padding: 2rem 0; border-bottom: 1px solid var(--rule); }
+.list h2 { margin: 0.35rem 0 0.5rem; font-size: 1.6rem; line-height: 1.25; font-weight: 600; letter-spacing: -0.01em; }
+.list h2 a { color: var(--ink); text-decoration: none; }
+.list h2 a:hover { color: var(--accent); }
+.list p { margin: 0; color: var(--muted); }
+.meta { font: 500 0.85rem/1.4 var(--sans); color: var(--muted); display: flex; gap: 1rem; flex-wrap: wrap; }
+.meta .sources { color: var(--accent); }
+
+/* Article */
+article { padding: 2.5rem 0 4rem; }
+.back { font: 500 0.9rem var(--sans); }
+article h1 { font-size: clamp(1.9rem, 5vw, 2.6rem); line-height: 1.15; letter-spacing: -0.02em; margin: 1.25rem 0 1rem; }
+.dek { font-size: 1.2rem; line-height: 1.55; color: var(--muted); margin: 0 0 1.25rem; }
+.byline { padding-bottom: 1.75rem; border-bottom: 1px solid var(--rule); margin-bottom: 0.5rem; }
+.body h2 { font-size: 1.45rem; line-height: 1.3; margin: 2.5rem 0 0.75rem; letter-spacing: -0.01em; }
+.body h3 { font-size: 1.15rem; margin: 2rem 0 0.5rem; }
+.body p, .body li { max-width: 68ch; }
+.body ul, .body ol { padding-left: 1.3rem; }
+.body li { margin: 0.35rem 0; }
+.body blockquote { margin: 1.5rem 0; padding: 0.25rem 0 0.25rem 1.1rem; border-left: 3px solid var(--rule); color: var(--muted); }
+.body table { border-collapse: collapse; font: 0.95rem/1.5 var(--sans); margin: 1.5rem 0; }
+.table-scroll { overflow-x: auto; }
+.body th, .body td { border-bottom: 1px solid var(--rule); padding: 0.5rem 0.75rem; text-align: left; vertical-align: top; }
+
+/* Source markers: the signature element */
+.cite { white-space: nowrap; margin-left: 0.15em; }
+.cite button {
+  font: 600 0.68rem/1 var(--sans); color: var(--accent); background: var(--accent-soft);
+  border: 0; border-radius: 0.6em; padding: 0.28em 0.5em; margin: 0 0.08em;
+  vertical-align: 0.35em; cursor: pointer; min-width: 1.6em;
+}
+.cite button:hover, .cite button[aria-expanded="true"] { background: var(--accent); color: var(--paper); }
+
+.popover {
+  position: absolute; z-index: 10; width: min(22rem, calc(100vw - 2rem));
+  background: var(--card); color: var(--ink); border: 1px solid var(--rule); border-left: 3px solid var(--accent);
+  border-radius: 6px; padding: 0.85rem 1rem; box-shadow: 0 10px 30px rgba(23, 32, 48, 0.14);
+  font: 0.92rem/1.45 var(--sans);
+}
+.popover .pub { color: var(--muted); font-size: 0.82rem; margin-bottom: 0.2rem; }
+.popover a { font-weight: 600; word-break: break-word; }
+
+.sources-list { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--rule); }
+.sources-list h2 { font-size: 1.15rem; margin: 0 0 1rem; }
+.sources-list ol { margin: 0; padding: 0; list-style: none; counter-reset: s; font: 0.95rem/1.5 var(--sans); }
+.sources-list li { display: grid; grid-template-columns: 2.2rem 1fr; gap: 0.25rem; padding: 0.45rem 0; scroll-margin-top: 1rem; }
+.sources-list li:target { background: var(--accent-soft); border-radius: 4px; }
+.sources-list .n { font-weight: 700; color: var(--accent); }
+.sources-list .pub { color: var(--muted); }
+
+.disclaimer {
+  margin-top: 2rem; padding: 1rem 1.15rem; border-radius: 6px; background: var(--card);
+  border: 1px solid var(--rule); color: var(--muted); font: 0.9rem/1.55 var(--sans);
+}
+
+.state { padding: 3rem 0; color: var(--muted); }
+.state h2 { color: var(--ink); font-size: 1.35rem; margin: 0 0 0.5rem; }
+footer { padding: 2.5rem 0 3rem; color: var(--muted); font: 0.85rem var(--sans); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .reveal { animation: rise 0.45s ease-out both; }
+  @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="masthead" id="masthead">
+    <p class="site-name"><a href="#/">Strategy Notes</a></p>
+    <p class="tagline">Plain-language guides to crypto strategies, with a source behind every fact<span class="cite" aria-hidden="true"><button tabindex="-1">1</button></span></p>
+  </header>
+  <main id="app" aria-live="polite"></main>
+  <footer>Educational content only. Nothing here is financial advice.</footer>
+</div>
+
+<script src="marked.umd.js"></script>
+<script>
+const SITE_NAME = "Strategy Notes";
+const app = document.getElementById("app");
+const masthead = document.getElementById("masthead");
+
+const el = (tag, attrs = {}, ...children) => {
+  const node = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k === "class") node.className = v; else if (k === "text") node.textContent = v; else node.setAttribute(k, v);
+  }
+  for (const c of children) if (c != null) node.append(c);
+  return node;
+};
+const fmtDate = (iso) => iso ? new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }) : "";
+
+async function api(params = "") {
+  const res = await fetch("/api/articles" + params, { headers: { accept: "application/json" } });
+  let data = {};
+  try { data = await res.json(); } catch { /* non-JSON response */ }
+  if (!res.ok) throw Object.assign(new Error(data.message || `Request failed (${res.status}).`), { code: data.error, status: res.status });
+  return data;
+}
+
+function showState(title, message, linkHome = false) {
+  app.replaceChildren(el("div", { class: "state" },
+    el("h2", { text: title }), el("p", { text: message }),
+    linkHome ? el("p", {}, el("a", { href: "#/", text: "Go to all articles" })) : null));
+}
+
+/* ---------- home ---------- */
+async function renderHome() {
+  masthead.classList.remove("compact");
+  document.title = SITE_NAME;
+  showState("Loading articles", "");
+  try {
+    const { articles } = await api();
+    if (!articles.length) return showState("No articles published yet", "New guides appear here once they're published.");
+    const list = el("ul", { class: "list reveal" });
+    for (const a of articles) {
+      list.append(el("li", {},
+        el("div", { class: "meta" },
+          el("time", { datetime: a.published_at || "", text: fmtDate(a.published_at) }),
+          a.source_count ? el("span", { class: "sources", text: `${a.source_count} source${a.source_count === 1 ? "" : "s"}` }) : null),
+        el("h2", {}, el("a", { href: `#/article/${encodeURIComponent(a.slug)}`, text: a.title })),
+        a.summary ? el("p", { text: a.summary }) : null));
+    }
+    app.replaceChildren(list);
+  } catch (err) {
+    showState("Articles couldn't load", err.message);
+  }
+}
+
+/* ---------- article ---------- */
+function splitDisclaimer(md, disclaimer) {
+  const i = md.lastIndexOf("\n---");
+  if (i !== -1 && md.length - i < 1200) return [md.slice(0, i), disclaimer || md.slice(i + 4).replace(/[*_]/g, "").trim()];
+  return [md, disclaimer];
+}
+
+function linkSources(md, claims) {
+  const sourceOfClaim = new Map(claims.map(c => [String(c.claim_id), c]));
+  const order = [];                    // sources in order of first appearance
+  const numberOf = new Map();          // source_id -> display number
+  const out = md.replace(/(?:[ \t]*\[c(\d+)\])+/g, (run) => {
+    const nums = [];
+    for (const m of run.matchAll(/\[c(\d+)\]/g)) {
+      const c = sourceOfClaim.get(m[1]);
+      if (!c) continue;
+      if (!numberOf.has(c.source_id)) { numberOf.set(c.source_id, order.length + 1); order.push(c); }
+      const n = numberOf.get(c.source_id);
+      if (!nums.includes(n)) nums.push(n);
+    }
+    if (!nums.length) return "";
+    return `<span class="cite">${nums.map(n =>
+      `<button type="button" data-src="${n}" aria-expanded="false" aria-label="Source ${n}">${n}</button>`).join("")}</span>`;
+  });
+  return { md: out, sources: order };
+}
+
+let popover = null;
+function closePopover() {
+  if (!popover) return;
+  popover.owner.setAttribute("aria-expanded", "false");
+  popover.node.remove();
+  popover = null;
+}
+function openPopover(btn, src, n) {
+  const wasOpen = popover && popover.owner === btn;
+  closePopover();
+  if (wasOpen) return;
+  const node = el("div", { class: "popover", role: "dialog", "aria-label": `Source ${n}` },
+    el("div", { class: "pub", text: src.publisher || new URL(src.url).hostname }),
+    el("a", { href: src.url, target: "_blank", rel: "noopener", text: src.title || src.url }),
+    el("div", {}, el("a", { href: `#src-${n}`, class: "jump", text: "See in source list" })));
+  node.querySelector(".jump").style.cssText = "font-weight:400;font-size:0.82rem";
+  document.body.append(node);
+  const r = btn.getBoundingClientRect();
+  const left = Math.min(Math.max(16, r.left + window.scrollX - 20), window.scrollX + document.documentElement.clientWidth - node.offsetWidth - 16);
+  node.style.left = left + "px";
+  node.style.top = (r.bottom + window.scrollY + 8) + "px";
+  btn.setAttribute("aria-expanded", "true");
+  popover = { node, owner: btn };
+}
+
+async function renderArticle(slug) {
+  masthead.classList.add("compact");
+  showState("Loading article", "");
+  try {
+    const { article, claims } = await api("?slug=" + encodeURIComponent(slug));
+    document.title = `${article.title} | ${SITE_NAME}`;
+    const [bodyMd, disclaimer] = splitDisclaimer(article.body_md, article.disclaimer);
+    const { md, sources } = linkSources(bodyMd, claims);
+
+    const body = el("div", { class: "body" });
+    body.innerHTML = marked.parse(md);
+    body.querySelectorAll("table").forEach(t => { const w = el("div", { class: "table-scroll" }); t.replaceWith(w); w.append(t); });
+    body.querySelectorAll("h1").forEach(h => { const h2 = el("h2"); h2.innerHTML = h.innerHTML; h.replaceWith(h2); });
+    body.addEventListener("click", (e) => {
+      const btn = e.target.closest(".cite button");
+      if (!btn) return;
+      e.stopPropagation();
+      const n = Number(btn.dataset.src);
+      openPopover(btn, sources[n - 1], n);
+    });
+
+    const list = el("ol");
+    sources.forEach((s, i) => list.append(el("li", { id: `src-${i + 1}` },
+      el("span", { class: "n", text: String(i + 1) }),
+      el("span", {}, el("a", { href: s.url, target: "_blank", rel: "noopener", text: s.title || s.url }),
+        s.publisher ? el("span", { class: "pub", text: `, ${s.publisher}` }) : null))));
+
+    app.replaceChildren(el("article", { class: "reveal" },
+      el("a", { class: "back", href: "#/", text: "All articles" }),
+      el("h1", { text: article.title }),
+      article.summary ? el("p", { class: "dek", text: article.summary }) : null,
+      el("div", { class: "meta byline" },
+        el("time", { datetime: article.published_at || "", text: fmtDate(article.published_at) }),
+        sources.length ? el("a", { class: "sources", href: "#sources", text: `Built from ${sources.length} source${sources.length === 1 ? "" : "s"}` }) : null),
+      body,
+      sources.length ? el("section", { class: "sources-list", id: "sources" }, el("h2", { text: "Sources" }), list) : null,
+      disclaimer ? el("p", { class: "disclaimer", text: disclaimer }) : null));
+    window.scrollTo(0, 0);
+  } catch (err) {
+    if (err.status === 404) showState("Article not found", "It may have been unpublished or renamed.", true);
+    else showState("This article couldn't load", err.message, true);
+  }
+}
+
+/* ---------- router ---------- */
+function route() {
+  closePopover();
+  const h = location.hash;
+  if ((h === "#sources" || h.startsWith("#src-")) && app.querySelector("article")) return; // in-page jump
+  const m = h.match(/^#\/article\/(.+)$/);
+  if (m) renderArticle(decodeURIComponent(m[1])); else renderHome();
+}
+document.addEventListener("click", (e) => { if (popover && !popover.node.contains(e.target)) closePopover(); });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && popover) { const o = popover.owner; closePopover(); o.focus(); } });
+window.addEventListener("hashchange", route);
+route();
+</script>
+</body>
+</html>
