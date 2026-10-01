@@ -7,247 +7,314 @@
 <meta name="description" content="Plain-language guides to crypto strategies, with a source behind every fact.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;0,7..72,700;1,7..72,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;0,7..72,700;1,7..72,400&display=swap" rel="stylesheet">
 <style>
 :root {
-  --paper: #F4F6F8;
-  --ink: #172030;
-  --muted: #5A6475;
-  --rule: #D8DDE5;
-  --accent: #1E6B57;
-  --accent-soft: #E1EFEA;
+  --bg: #FAFAFA;
   --card: #FFFFFF;
+  --ink: #09090B;
+  --muted: #71717A;
+  --border: #E4E4E7;
+  --subtle: #F4F4F5;
+  --accent: #15775B;
+  --accent-soft: #E3F2EC;
+  --glow: rgba(21, 119, 91, 0.10);
+  --sans: "Geist", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --serif: "Literata", Georgia, "Times New Roman", serif;
-  --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --radius: 14px;
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --paper: #121820; --ink: #E6EAF0; --muted: #9AA4B2; --rule: #2A3340;
-    --accent: #6CC3A6; --accent-soft: #1C2E29; --card: #18202B;
+    --bg: #09090B; --card: #111114; --ink: #FAFAFA; --muted: #A1A1AA; --border: #27272A;
+    --subtle: #18181B; --accent: #5FD0A8; --accent-soft: #10291F; --glow: rgba(95, 208, 168, 0.10);
     color-scheme: dark;
   }
 }
 * { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; }
-body {
-  margin: 0; background: var(--paper); color: var(--ink);
-  font: 400 1.0625rem/1.7 var(--serif);
-  padding: env(safe-area-inset-top, 0) 0 env(safe-area-inset-bottom, 0);
-}
+html { -webkit-text-size-adjust: 100%; scroll-padding-top: 5rem; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 400 1rem/1.6 var(--sans);
+  padding-bottom: env(safe-area-inset-bottom, 0); }
 a { color: var(--accent); text-underline-offset: 0.18em; }
-a:hover { text-decoration-thickness: 2px; }
-:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 3px; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+button { font: inherit; }
 
-.wrap { max-width: 44rem; margin: 0 auto; padding: 0 1.25rem; }
+.shell { width: 100%; max-width: 92rem; margin: 0 auto; padding-inline: clamp(1rem, 4vw, 3rem); }
 
-/* Masthead */
-.masthead { padding: 3.5rem 0 2.5rem; border-bottom: 1px solid var(--rule); }
-.masthead a { color: inherit; text-decoration: none; }
-.site-name {
-  font-size: clamp(2.4rem, 7vw, 3.6rem); font-weight: 700; line-height: 1.02;
-  letter-spacing: -0.02em; margin: 0;
-}
-.tagline { margin: 0.9rem 0 0; color: var(--muted); font-size: 1.125rem; line-height: 1.5; max-width: 30rem; }
-.tagline .cite { vertical-align: 0.15em; }
-.masthead.compact { padding: 1.5rem 0 1.25rem; }
-.masthead.compact .site-name { font-size: 1.35rem; letter-spacing: -0.01em; }
-.masthead.compact .tagline { display: none; }
+/* Top bar */
+.topbar { position: sticky; top: 0; z-index: 20; padding-top: env(safe-area-inset-top, 0);
+  background: color-mix(in srgb, var(--bg) 82%, transparent); backdrop-filter: saturate(160%) blur(10px);
+  -webkit-backdrop-filter: saturate(160%) blur(10px); border-bottom: 1px solid var(--border); }
+.topbar .shell { display: flex; align-items: center; gap: 1rem; min-height: 3.75rem; }
+.brand { font: 700 1.05rem var(--sans); letter-spacing: -0.02em; color: var(--ink); text-decoration: none; display: flex; align-items: center; gap: 0.55rem; }
+.brand-mark { width: 1.4rem; height: 1.4rem; border-radius: 6px; background: var(--accent); color: var(--bg);
+  display: grid; place-items: center; font: 700 0.72rem var(--sans); }
+.topbar .spacer { flex: 1; }
+.topbar .count { color: var(--muted); font-size: 0.88rem; }
+.search { position: relative; width: min(20rem, 45vw); }
+.search input { width: 100%; font: 0.92rem var(--sans); color: var(--ink); background: var(--card);
+  border: 1px solid var(--border); border-radius: 10px; padding: 0.5rem 0.8rem; }
+.search input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+.nav-link { font-size: 0.9rem; font-weight: 500; color: var(--ink); text-decoration: none;
+  border: 1px solid var(--border); background: var(--card); border-radius: 10px; padding: 0.42rem 0.8rem; }
+.nav-link:hover { border-color: var(--accent); }
+.progress { position: absolute; left: 0; bottom: -1px; height: 2px; width: 0; background: var(--accent); }
 
-/* Article cards */
-body.home .wrap { max-width: 64rem; }
-.cards {
-  list-style: none; margin: 0; padding: 2rem 0 0.5rem;
-  display: grid; gap: 1.25rem;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
-}
-.card {
-  position: relative; display: flex; flex-direction: column; gap: 0.7rem;
-  background: var(--card); border: 1px solid var(--rule); border-radius: 12px;
-  padding: 1.35rem 1.4rem 1.2rem;
-}
-.card:hover { border-color: var(--accent); }
+/* Home intro */
+.intro { padding: clamp(2rem, 5vw, 3.5rem) 0 1.75rem; display: grid; gap: 0.6rem; }
+.intro h1 { margin: 0; font: 700 clamp(2rem, 4.6vw, 3.4rem)/1.05 var(--sans); letter-spacing: -0.035em; max-width: 18ch; }
+.intro p { margin: 0; color: var(--muted); font-size: 1.08rem; max-width: 46rem; }
+
+/* Cards */
+.grid { list-style: none; margin: 0; padding: 0 0 3rem; display: grid; gap: 1.25rem;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 19.5rem), 1fr)); }
+.card { position: relative; display: flex; flex-direction: column; overflow: hidden;
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); }
+.card::before { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0;
+  background: radial-gradient(22rem circle at var(--mx, 50%) var(--my, 50%), var(--glow), transparent 60%); }
+.card:hover { border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); }
+.card:hover::before { opacity: 1; }
 .card:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
-.card h2 { margin: 0; font-size: 1.28rem; line-height: 1.3; font-weight: 600; letter-spacing: -0.01em; }
+.cover { aspect-ratio: 16 / 7; background: var(--subtle); border-bottom: 1px solid var(--border); display: block; }
+.cover svg { width: 100%; height: 100%; display: block; }
+.card-body { display: flex; flex-direction: column; gap: 0.6rem; padding: 1.15rem 1.25rem 1.2rem; flex: 1; }
+.card-meta { display: flex; flex-wrap: wrap; gap: 0.35rem 0.9rem; color: var(--muted); font-size: 0.82rem; }
+.card h2 { margin: 0; font: 600 1.14rem/1.35 var(--sans); letter-spacing: -0.015em;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .card h2 a { color: var(--ink); text-decoration: none; }
 .card h2 a:focus-visible { outline: none; }
-.card h2 a::after { content: ""; position: absolute; inset: 0; border-radius: 12px; }
-.card p {
-  margin: 0; color: var(--muted); font-size: 0.98rem; line-height: 1.6;
-  display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;
-}
-.card .read { margin-top: auto; padding-top: 0.4rem; font: 600 0.88rem var(--sans); color: var(--accent); }
-.card-top { display: flex; justify-content: space-between; align-items: center; gap: 0.75rem;
-  font: 500 0.82rem/1.4 var(--sans); color: var(--muted); }
-.pill { background: var(--accent-soft); color: var(--accent); border-radius: 999px; padding: 0.2rem 0.65rem; font-weight: 600; white-space: nowrap; }
-.finder { margin: 2rem 0 0; }
-.finder input {
-  width: 100%; max-width: 26rem; font: 1rem var(--sans); color: var(--ink); background: var(--card);
-  border: 1px solid var(--rule); border-radius: 8px; padding: 0.65rem 0.85rem;
-}
-.finder input:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
-.finder + .cards { padding-top: 1.25rem; }
-.no-match { color: var(--muted); padding: 1rem 0; }
-.more { margin-top: 3.5rem; padding-top: 1.5rem; border-top: 1px solid var(--rule); }
-.more h2 { font-size: 1.15rem; margin: 0; }
-.more .cards { padding-top: 1rem; }
-.meta { font: 500 0.85rem/1.4 var(--sans); color: var(--muted); display: flex; gap: 1rem; flex-wrap: wrap; }
-.meta .sources { color: var(--accent); }
+.card h2 a::after { content: ""; position: absolute; inset: 0; z-index: 1; }
+.card p { margin: 0; color: var(--muted); font-size: 0.94rem;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.card-foot { margin-top: auto; padding-top: 0.5rem; display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
+.badge { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.78rem; font-weight: 600;
+  color: var(--accent); background: var(--accent-soft); border-radius: 999px; padding: 0.2rem 0.6rem; white-space: nowrap; }
+.read { font-size: 0.86rem; font-weight: 600; color: var(--ink); }
+.card:hover .read { color: var(--accent); }
 
-/* Article */
-article { padding: 2.5rem 0 4rem; }
-.back { font: 500 0.9rem var(--sans); }
-article h1 { font-size: clamp(1.9rem, 5vw, 2.6rem); line-height: 1.15; letter-spacing: -0.02em; margin: 1.25rem 0 1rem; }
-.dek { font-size: 1.2rem; line-height: 1.55; color: var(--muted); margin: 0 0 1.25rem; }
-.byline { padding-bottom: 1.75rem; border-bottom: 1px solid var(--rule); margin-bottom: 0.5rem; }
-.body h2 { font-size: 1.45rem; line-height: 1.3; margin: 2.5rem 0 0.75rem; letter-spacing: -0.01em; }
-.body h3 { font-size: 1.15rem; margin: 2rem 0 0.5rem; }
-.body p, .body li { max-width: 68ch; }
+.card.featured { grid-column: 1 / -1; flex-direction: row; min-height: 18rem; }
+.card.featured .cover { aspect-ratio: auto; width: 44%; border-bottom: 0; border-right: 1px solid var(--border); }
+.card.featured .card-body { padding: clamp(1.4rem, 3vw, 2.4rem); gap: 0.85rem; justify-content: center; }
+.card.featured h2 { font-size: clamp(1.45rem, 2.4vw, 2rem); line-height: 1.2; letter-spacing: -0.025em; }
+.card.featured p { font-size: 1.02rem; -webkit-line-clamp: 4; max-width: 44rem; }
+.card.featured .card-foot { margin-top: 0.4rem; justify-content: flex-start; }
+@media (max-width: 760px) {
+  .card.featured { flex-direction: column; min-height: 0; }
+  .card.featured .cover { width: auto; aspect-ratio: 16 / 7; border-right: 0; border-bottom: 1px solid var(--border); }
+}
+.no-match { color: var(--muted); padding: 0 0 3rem; }
+
+/* Article page: three columns on wide screens */
+.layout { display: grid; gap: clamp(1.5rem, 3vw, 3.5rem); padding: 2rem 0 1rem;
+  grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 1180px) {
+  .layout { grid-template-columns: 14rem minmax(0, 44rem) minmax(15rem, 20rem); justify-content: space-between; }
+}
+.toc, .rail { display: none; }
+@media (min-width: 1180px) {
+  .toc, .rail { display: block; }
+  .toc > div, .rail > div { position: sticky; top: 5.25rem; }
+  .sources-end { display: none; }
+}
+.side-title { font: 600 0.82rem var(--sans); color: var(--muted); margin: 0 0 0.75rem; }
+.toc ol { list-style: none; margin: 0; padding: 0; border-left: 1px solid var(--border); }
+.toc a { display: block; padding: 0.32rem 0 0.32rem 0.9rem; margin-left: -1px; border-left: 2px solid transparent;
+  color: var(--muted); text-decoration: none; font-size: 0.88rem; line-height: 1.4; }
+.toc a:hover { color: var(--ink); }
+.toc a.active { color: var(--accent); border-left-color: var(--accent); font-weight: 500; }
+
+.rail-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.1rem; }
+.src-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.15rem; }
+.src-list li { display: grid; grid-template-columns: 1.6rem 1fr; gap: 0.5rem; padding: 0.45rem 0.4rem; border-radius: 8px; font-size: 0.86rem; line-height: 1.4; }
+.src-list li.flash { background: var(--accent-soft); }
+.src-list .n { font-weight: 700; color: var(--accent); font-size: 0.8rem; padding-top: 0.08rem; }
+.src-list a { color: var(--ink); text-decoration: none; font-weight: 500; }
+.src-list a:hover { color: var(--accent); text-decoration: underline; }
+.src-list .pub { display: block; color: var(--muted); font-size: 0.8rem; }
+
+article .back { font-size: 0.88rem; font-weight: 500; text-decoration: none; }
+article h1 { font: 700 clamp(1.9rem, 4vw, 2.75rem)/1.12 var(--serif); letter-spacing: -0.02em; margin: 1rem 0 0.9rem; }
+.dek { font: 400 1.18rem/1.55 var(--serif); color: var(--muted); margin: 0 0 1.25rem; }
+.byline { display: flex; flex-wrap: wrap; gap: 0.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
+.chip { font-size: 0.82rem; color: var(--muted); border: 1px solid var(--border); background: var(--card); border-radius: 999px; padding: 0.22rem 0.7rem; }
+.chip.accent { color: var(--accent); border-color: transparent; background: var(--accent-soft); font-weight: 600; text-decoration: none; }
+.body { font: 400 1.075rem/1.75 var(--serif); }
+.body h2 { font: 600 1.45rem/1.3 var(--serif); letter-spacing: -0.01em; margin: 2.6rem 0 0.7rem; }
+.body h3 { font: 600 1.15rem var(--serif); margin: 2rem 0 0.5rem; }
+.body p, .body li { max-width: 70ch; }
 .body ul, .body ol { padding-left: 1.3rem; }
-.body li { margin: 0.35rem 0; }
-.body blockquote { margin: 1.5rem 0; padding: 0.25rem 0 0.25rem 1.1rem; border-left: 3px solid var(--rule); color: var(--muted); }
-.body table { border-collapse: collapse; font: 0.95rem/1.5 var(--sans); margin: 1.5rem 0; }
+.body li { margin: 0.4rem 0; }
+.body blockquote { margin: 1.5rem 0; padding: 0.2rem 0 0.2rem 1.1rem; border-left: 3px solid var(--border); color: var(--muted); }
 .table-scroll { overflow-x: auto; }
-.body th, .body td { border-bottom: 1px solid var(--rule); padding: 0.5rem 0.75rem; text-align: left; vertical-align: top; }
+.body table { border-collapse: collapse; font: 0.92rem/1.5 var(--sans); margin: 1.5rem 0; }
+.body th, .body td { border-bottom: 1px solid var(--border); padding: 0.5rem 0.75rem; text-align: left; vertical-align: top; }
 
-/* Source markers: the signature element */
-.cite { white-space: nowrap; margin-left: 0.15em; }
-.cite button {
-  font: 600 0.68rem/1 var(--sans); color: var(--accent); background: var(--accent-soft);
-  border: 0; border-radius: 0.6em; padding: 0.28em 0.5em; margin: 0 0.08em;
-  vertical-align: 0.35em; cursor: pointer; min-width: 1.6em;
-}
-.cite button:hover, .cite button[aria-expanded="true"] { background: var(--accent); color: var(--paper); }
-
-.popover {
-  position: absolute; z-index: 10; width: min(22rem, calc(100vw - 2rem));
-  background: var(--card); color: var(--ink); border: 1px solid var(--rule); border-left: 3px solid var(--accent);
-  border-radius: 6px; padding: 0.85rem 1rem; box-shadow: 0 10px 30px rgba(23, 32, 48, 0.14);
-  font: 0.92rem/1.45 var(--sans);
-}
-.popover .pub { color: var(--muted); font-size: 0.82rem; margin-bottom: 0.2rem; }
+.cite { white-space: nowrap; margin-left: 0.12em; }
+.cite button { font: 600 0.66rem/1 var(--sans); color: var(--accent); background: var(--accent-soft); border: 0;
+  border-radius: 0.55em; padding: 0.3em 0.48em; margin: 0 0.06em; vertical-align: 0.38em; cursor: pointer; min-width: 1.55em; }
+.cite button:hover, .cite button[aria-expanded="true"] { background: var(--accent); color: var(--bg); }
+.popover { position: absolute; z-index: 30; width: min(22rem, calc(100vw - 2rem)); background: var(--card); color: var(--ink);
+  border: 1px solid var(--border); border-radius: 12px; padding: 0.85rem 1rem; box-shadow: 0 12px 32px rgba(9, 9, 11, 0.16);
+  font: 0.9rem/1.45 var(--sans); }
+.popover .pub { color: var(--muted); font-size: 0.8rem; margin-bottom: 0.2rem; }
 .popover a { font-weight: 600; word-break: break-word; }
+.popover .jump { display: inline-block; margin-top: 0.4rem; font-weight: 400; font-size: 0.82rem; background: none; border: 0; padding: 0; color: var(--accent); cursor: pointer; text-decoration: underline; }
 
-.sources-list { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--rule); }
-.sources-list h2 { font-size: 1.15rem; margin: 0 0 1rem; }
-.sources-list ol { margin: 0; padding: 0; list-style: none; counter-reset: s; font: 0.95rem/1.5 var(--sans); }
-.sources-list li { display: grid; grid-template-columns: 2.2rem 1fr; gap: 0.25rem; padding: 0.45rem 0; scroll-margin-top: 1rem; }
-.sources-list li:target { background: var(--accent-soft); border-radius: 4px; }
-.sources-list .n { font-weight: 700; color: var(--accent); }
-.sources-list .pub { color: var(--muted); }
+.sources-end { margin-top: 3rem; }
+.disclaimer { margin-top: 2rem; padding: 1rem 1.15rem; border-radius: 12px; background: var(--card);
+  border: 1px solid var(--border); color: var(--muted); font-size: 0.88rem; }
+.more { padding: 2.5rem 0 1rem; border-top: 1px solid var(--border); margin-top: 2.5rem; }
+.more h2 { font: 600 1.2rem var(--sans); letter-spacing: -0.01em; margin: 0 0 1.25rem; }
+.more .grid { padding-bottom: 1rem; }
 
-.disclaimer {
-  margin-top: 2rem; padding: 1rem 1.15rem; border-radius: 6px; background: var(--card);
-  border: 1px solid var(--rule); color: var(--muted); font: 0.9rem/1.55 var(--sans);
-}
-
-.state { padding: 3rem 0; color: var(--muted); }
-.state h2 { color: var(--ink); font-size: 1.35rem; margin: 0 0 0.5rem; }
-footer { padding: 2.5rem 0 3rem; color: var(--muted); font: 0.85rem var(--sans); }
+.state { padding: 4rem 0; color: var(--muted); max-width: 40rem; }
+.state h2 { color: var(--ink); font: 600 1.4rem var(--sans); margin: 0 0 0.5rem; }
+footer { border-top: 1px solid var(--border); color: var(--muted); font-size: 0.85rem; padding: 1.75rem 0 2.5rem; }
 
 @media (prefers-reduced-motion: no-preference) {
-  .reveal { animation: rise 0.45s ease-out both; }
+  .card, .card::before { transition: border-color 0.2s ease, opacity 0.25s ease; }
+  .reveal { animation: rise 0.4s ease-out both; }
   @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header class="masthead" id="masthead">
-    <p class="site-name"><a href="#/">Strategy Notes</a></p>
-    <p class="tagline">Plain-language guides to crypto strategies, with a source behind every fact<span class="cite" aria-hidden="true"><button tabindex="-1">1</button></span></p>
-  </header>
-  <main id="app" aria-live="polite"></main>
-  <footer>Educational content only. Nothing here is financial advice.</footer>
-</div>
+<header class="topbar">
+  <div class="shell">
+    <a class="brand" href="#/"><span class="brand-mark" aria-hidden="true">SN</span><span id="brand-name">Strategy Notes</span></a>
+    <span class="spacer"></span>
+    <div id="topbar-tools"></div>
+  </div>
+  <div class="progress" id="progress" hidden></div>
+</header>
+<main class="shell" id="app" aria-live="polite"></main>
+<footer><div class="shell">Educational content only. Nothing here is financial advice.</div></footer>
 
 <script src="marked.umd.js"></script>
 <script>
 const SITE_NAME = "Strategy Notes";
+const WORDS_PER_MINUTE = 220;
 const app = document.getElementById("app");
-const masthead = document.getElementById("masthead");
+const tools = document.getElementById("topbar-tools");
+const progress = document.getElementById("progress");
+document.getElementById("brand-name").textContent = SITE_NAME;
 
 const el = (tag, attrs = {}, ...children) => {
   const node = document.createElement(tag);
   for (const [k, v] of Object.entries(attrs)) {
+    if (v == null) continue;
     if (k === "class") node.className = v; else if (k === "text") node.textContent = v; else node.setAttribute(k, v);
   }
   for (const c of children) if (c != null) node.append(c);
   return node;
 };
-const fmtDate = (iso) => iso ? new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }) : "";
+const fmtDate = (iso) => iso ? new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "";
+const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
+const minutesFromText = (md) => Math.max(1, Math.round((md || "").replace(/\[c\d+\]/g, "").split(/\s+/).filter(Boolean).length / WORDS_PER_MINUTE));
 
 async function api(params = "") {
   const res = await fetch("/api/articles" + params, { headers: { accept: "application/json" } });
   let data = {};
-  try { data = await res.json(); } catch { /* non-JSON response */ }
+  try { data = await res.json(); } catch { /* non-JSON */ }
   if (!res.ok) throw Object.assign(new Error(data.message || `Request failed (${res.status}).`), { code: data.error, status: res.status });
   return data;
 }
 
 function showState(title, message, linkHome = false) {
   app.replaceChildren(el("div", { class: "state" },
-    el("h2", { text: title }), el("p", { text: message }),
-    linkHome ? el("p", {}, el("a", { href: "#/", text: "Go to all articles" })) : null));
+    el("h2", { text: title }), message ? el("p", { text: message }) : null,
+    linkHome ? el("p", {}, el("a", { href: "#/", text: "Go to all guides" })) : null));
+}
+
+/* Generated cover: an abstract dot pattern, unique per article. Decorative only, not data. */
+function cover(slug, featured = false) {
+  let h = 2166136261;
+  for (const ch of slug) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); }
+  const rand = () => { h ^= h << 13; h ^= h >>> 17; h ^= h << 5; return (h >>> 0) / 4294967296; };
+  const cols = featured ? 22 : 16, rows = featured ? 14 : 7, gap = 20, r = 3.2;
+  const w = 20 + (cols - 1) * gap + 20, hgt = 16 + (rows - 1) * gap + 16;
+  let dots = "";
+  const band = rand() * rows;
+  for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
+    const near = Math.abs(y - band - Math.sin(x / 2.4 + rand() * 0.3) * (featured ? 3.2 : 1.6)) < (featured ? 1.6 : 1.1);
+    const on = near || rand() < 0.06;
+    dots += `<circle cx="${20 + x * gap}" cy="${16 + y * gap}" r="${on ? r + 0.6 : r * 0.62}" fill="${on ? "var(--accent)" : "var(--border)"}" opacity="${on ? 0.9 : 1}"/>`;
+  }
+  const wrap = el("div", { class: "cover", "aria-hidden": "true" });
+  wrap.innerHTML = `<svg viewBox="0 0 ${w} ${hgt}" preserveAspectRatio="xMidYMid slice">${dots}</svg>`;
+  return wrap;
+}
+
+function cardFor(a, featured = false) {
+  const n = a.source_count || 0;
+  const mins = a.reading_minutes;
+  return el("li", { class: "card" + (featured ? " featured" : "") },
+    cover(a.slug, featured),
+    el("div", { class: "card-body" },
+      el("div", { class: "card-meta" },
+        featured ? el("span", { class: "badge", text: "Latest" }) : null,
+        el("time", { datetime: a.published_at || "", text: fmtDate(a.published_at) }),
+        mins ? el("span", { text: `${mins} min read` }) : null),
+      el("h2", {}, el("a", { href: `#/article/${encodeURIComponent(a.slug)}`, text: a.title })),
+      a.summary ? el("p", { text: a.summary }) : null,
+      el("div", { class: "card-foot" },
+        n ? el("span", { class: "badge", text: plural(n, "source") }) : el("span"),
+        el("span", { class: "read", "aria-hidden": "true", text: "Read guide" }))));
+}
+
+/* One pointer listener on the grid, not one per card */
+function spotlight(grid) {
+  grid.addEventListener("pointermove", (e) => {
+    const card = e.target.closest(".card");
+    if (!card) return;
+    const r = card.getBoundingClientRect();
+    card.style.setProperty("--mx", `${e.clientX - r.left}px`);
+    card.style.setProperty("--my", `${e.clientY - r.top}px`);
+  });
 }
 
 /* ---------- home ---------- */
-function cardFor(a) {
-  const n = a.source_count || 0;
-  return el("li", { class: "card" },
-    el("div", { class: "card-top" },
-      el("time", { datetime: a.published_at || "", text: fmtDate(a.published_at) }),
-      n ? el("span", { class: "pill", text: `${n} source${n === 1 ? "" : "s"}` }) : null),
-    el("h2", {}, el("a", { href: `#/article/${encodeURIComponent(a.slug)}`, text: a.title })),
-    a.summary ? el("p", { text: a.summary }) : null,
-    el("span", { class: "read", "aria-hidden": "true", text: "Read article" }));
-}
-
 async function renderHome() {
-  document.body.classList.add("home");
-  masthead.classList.remove("compact");
   document.title = SITE_NAME;
-  showState("Loading articles", "");
+  progress.hidden = true;
+  tools.replaceChildren();
+  showState("Loading guides", "");
   try {
     const { articles } = await api();
-    if (!articles.length) return showState("No articles published yet", "New guides appear here once they're published.");
-    const cards = el("ul", { class: "cards reveal" });
-    articles.forEach(a => cards.append(cardFor(a)));
-    const parts = [];
-    if (articles.length >= 6) {
+    if (!articles.length) {
+      return showState("No guides published yet", "New guides appear here once they're published.");
+    }
+    const intro = el("section", { class: "intro reveal" },
+      el("h1", { text: "Crypto strategies, explained with sources" }),
+      el("p", { text: "Plain-language guides to how each strategy works and what can go wrong. Every fact links to the page it came from." }));
+    const grid = el("ul", { class: "grid reveal" });
+    articles.forEach((a, i) => grid.append(cardFor(a, i === 0)));
+    spotlight(grid);
+    const none = el("p", { class: "no-match", text: "No guides match that search." });
+    none.hidden = true;
+
+    if (articles.length >= 4) {
       const input = el("input", { type: "search", placeholder: "Search guides", "aria-label": "Search guides" });
-      const none = el("p", { class: "no-match", text: "No guides match that search." });
-      none.hidden = true;
       input.addEventListener("input", () => {
         const q = input.value.trim().toLowerCase();
         let shown = 0;
-        [...cards.children].forEach((li, i) => {
+        [...grid.children].forEach((li, i) => {
           const a = articles[i];
-          const hit = !q || (a.title + " " + (a.summary || "")).toLowerCase().includes(q);
-          li.hidden = !hit; if (hit) shown++;
+          const hit = !q || `${a.title} ${a.summary || ""}`.toLowerCase().includes(q);
+          li.hidden = !hit;
+          li.classList.toggle("featured", i === 0 && !q);
+          if (hit) shown++;
         });
         none.hidden = shown > 0;
       });
-      parts.push(el("div", { class: "finder" }, input));
-      app.replaceChildren(...parts, cards, none);
+      tools.replaceChildren(el("div", { class: "search" }, input));
     } else {
-      app.replaceChildren(cards);
+      tools.replaceChildren(el("span", { class: "count", text: plural(articles.length, "guide") }));
     }
+    app.replaceChildren(intro, grid, none);
   } catch (err) {
-    showState("Articles couldn't load", err.message);
+    showState("Guides couldn't load", err.message);
   }
-}
-
-async function renderMore(currentSlug, container) {
-  try {
-    const { articles } = await api();
-    const others = articles.filter(a => a.slug !== currentSlug).slice(0, 3);
-    if (!others.length) return;
-    const cards = el("ul", { class: "cards" });
-    others.forEach(a => cards.append(cardFor(a)));
-    container.replaceChildren(el("h2", { text: "More guides" }), cards);
-    container.hidden = false;
-  } catch { /* the article still works without suggestions */ }
 }
 
 /* ---------- article ---------- */
@@ -259,8 +326,7 @@ function splitDisclaimer(md, disclaimer) {
 
 function linkSources(md, claims) {
   const sourceOfClaim = new Map(claims.map(c => [String(c.claim_id), c]));
-  const order = [];                    // sources in order of first appearance
-  const numberOf = new Map();          // source_id -> display number
+  const order = [], numberOf = new Map();
   const out = md.replace(/(?:[ \t]*\[c(\d+)\])+/g, (run) => {
     const nums = [];
     for (const m of run.matchAll(/\[c(\d+)\]/g)) {
@@ -277,6 +343,24 @@ function linkSources(md, claims) {
   return { md: out, sources: order };
 }
 
+function sourceList(sources, idPrefix) {
+  const list = el("ol", { class: "src-list" });
+  sources.forEach((s, i) => list.append(el("li", { id: `${idPrefix}-${i + 1}` },
+    el("span", { class: "n", text: String(i + 1) }),
+    el("span", {}, el("a", { href: s.url, target: "_blank", rel: "noopener", text: s.title || s.url }),
+      s.publisher ? el("span", { class: "pub", text: s.publisher }) : null))));
+  return list;
+}
+
+function jumpToSource(n) {
+  const wide = window.matchMedia("(min-width: 1180px)").matches;
+  const item = document.getElementById(`${wide ? "rail" : "end"}-src-${n}`);
+  if (!item) return;
+  item.scrollIntoView({ behavior: "smooth", block: "center" });
+  item.classList.add("flash");
+  setTimeout(() => item.classList.remove("flash"), 1600);
+}
+
 let popover = null;
 function closePopover() {
   if (!popover) return;
@@ -287,37 +371,41 @@ function closePopover() {
 function openPopover(btn, src, n) {
   const wasOpen = popover && popover.owner === btn;
   closePopover();
-  if (wasOpen) return;
+  if (wasOpen || !src) return;
+  let host = src.publisher;
+  if (!host) { try { host = new URL(src.url).hostname; } catch { host = ""; } }
+  const jump = el("button", { type: "button", class: "jump", text: "Show in source list" });
+  jump.addEventListener("click", () => { closePopover(); jumpToSource(n); });
   const node = el("div", { class: "popover", role: "dialog", "aria-label": `Source ${n}` },
-    el("div", { class: "pub", text: src.publisher || new URL(src.url).hostname }),
+    el("div", { class: "pub", text: host }),
     el("a", { href: src.url, target: "_blank", rel: "noopener", text: src.title || src.url }),
-    el("div", {}, el("a", { href: `#src-${n}`, class: "jump", text: "See in source list" })));
-  node.querySelector(".jump").style.cssText = "font-weight:400;font-size:0.82rem";
+    el("div", {}, jump));
   document.body.append(node);
   const r = btn.getBoundingClientRect();
-  const left = Math.min(Math.max(16, r.left + window.scrollX - 20), window.scrollX + document.documentElement.clientWidth - node.offsetWidth - 16);
-  node.style.left = left + "px";
+  const maxLeft = window.scrollX + document.documentElement.clientWidth - node.offsetWidth - 16;
+  node.style.left = Math.min(Math.max(16, r.left + window.scrollX - 20), maxLeft) + "px";
   node.style.top = (r.bottom + window.scrollY + 8) + "px";
   btn.setAttribute("aria-expanded", "true");
   popover = { node, owner: btn };
 }
 
+let cleanupArticle = () => {};
 async function renderArticle(slug) {
-  document.body.classList.remove("home");
-  masthead.classList.add("compact");
-  showState("Loading article", "");
+  tools.replaceChildren(el("a", { class: "nav-link", href: "#/", text: "All guides" }));
+  showState("Loading guide", "");
   try {
     const { article, claims } = await api("?slug=" + encodeURIComponent(slug));
     document.title = `${article.title} | ${SITE_NAME}`;
     const [bodyMd, disclaimer] = splitDisclaimer(article.body_md, article.disclaimer);
     const { md, sources } = linkSources(bodyMd, claims);
+    const mins = article.reading_minutes || minutesFromText(bodyMd);
 
-    const more = el("section", { class: "more" });
-    more.hidden = true;
     const body = el("div", { class: "body" });
     body.innerHTML = marked.parse(md);
-    body.querySelectorAll("table").forEach(t => { const w = el("div", { class: "table-scroll" }); t.replaceWith(w); w.append(t); });
     body.querySelectorAll("h1").forEach(h => { const h2 = el("h2"); h2.innerHTML = h.innerHTML; h.replaceWith(h2); });
+    body.querySelectorAll("table").forEach(t => { const w = el("div", { class: "table-scroll" }); t.replaceWith(w); w.append(t); });
+    const headings = [...body.querySelectorAll("h2")];
+    headings.forEach((h, i) => { h.id = `section-${i + 1}`; });
     body.addEventListener("click", (e) => {
       const btn = e.target.closest(".cite button");
       if (!btn) return;
@@ -326,36 +414,96 @@ async function renderArticle(slug) {
       openPopover(btn, sources[n - 1], n);
     });
 
-    const list = el("ol");
-    sources.forEach((s, i) => list.append(el("li", { id: `src-${i + 1}` },
-      el("span", { class: "n", text: String(i + 1) }),
-      el("span", {}, el("a", { href: s.url, target: "_blank", rel: "noopener", text: s.title || s.url }),
-        s.publisher ? el("span", { class: "pub", text: `, ${s.publisher}` }) : null))));
+    const tocList = el("ol");
+    headings.forEach(h => {
+      const a = el("a", { href: `#${h.id}`, text: h.textContent });
+      a.addEventListener("click", (e) => { e.preventDefault(); h.scrollIntoView({ behavior: "smooth", block: "start" }); });
+      tocList.append(el("li", {}, a));
+    });
 
-    app.replaceChildren(el("article", { class: "reveal" },
-      el("a", { class: "back", href: "#/", text: "All articles" }),
+    const updated = article.updated_at && article.published_at &&
+      (new Date(article.updated_at) - new Date(article.published_at)) > 86400000 ? article.updated_at : null;
+    const sourcesChip = el("a", { class: "chip accent", href: "#sources-end", text: `Built from ${plural(sources.length, "source")}` });
+    sourcesChip.addEventListener("click", (e) => {
+      e.preventDefault();
+      const wide = window.matchMedia("(min-width: 1180px)").matches;
+      document.getElementById(wide ? "rail" : "sources-end").scrollIntoView({ behavior: "smooth", block: wide ? "center" : "start" });
+    });
+
+    const art = el("article", {},
+      el("a", { class: "back", href: "#/", text: "All guides" }),
       el("h1", { text: article.title }),
       article.summary ? el("p", { class: "dek", text: article.summary }) : null,
-      el("div", { class: "meta byline" },
-        el("time", { datetime: article.published_at || "", text: fmtDate(article.published_at) }),
-        sources.length ? el("a", { class: "sources", href: "#sources", text: `Built from ${sources.length} source${sources.length === 1 ? "" : "s"}` }) : null),
+      el("div", { class: "byline" },
+        el("time", { class: "chip", datetime: article.published_at || "", text: `Published ${fmtDate(article.published_at)}` }),
+        updated ? el("time", { class: "chip", datetime: updated, text: `Updated ${fmtDate(updated)}` }) : null,
+        el("span", { class: "chip", text: `${mins} min read` }),
+        sources.length ? sourcesChip : null),
       body,
-      sources.length ? el("section", { class: "sources-list", id: "sources" }, el("h2", { text: "Sources" }), list) : null,
-      disclaimer ? el("p", { class: "disclaimer", text: disclaimer }) : null,
-      more));
+      sources.length ? el("section", { class: "sources-end", id: "sources-end" },
+        el("p", { class: "side-title", text: "Sources" }), sourceList(sources, "end-src")) : null,
+      disclaimer ? el("p", { class: "disclaimer", text: disclaimer }) : null);
+
+    const toc = el("aside", { class: "toc", "aria-label": "On this page" },
+      el("div", {}, el("p", { class: "side-title", text: "On this page" }), tocList));
+    const rail = el("aside", { class: "rail", id: "rail", "aria-label": "Sources" },
+      el("div", {}, sources.length ? el("div", { class: "rail-card" },
+        el("p", { class: "side-title", text: `Sources (${sources.length})` }), sourceList(sources, "rail-src")) : null));
+
+    const more = el("section", { class: "more" });
+    more.hidden = true;
+    app.replaceChildren(el("div", { class: "layout reveal" }, toc, art, rail), more);
     window.scrollTo(0, 0);
+
+    /* Active section in the table of contents */
+    const links = [...tocList.querySelectorAll("a")];
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(en => {
+        if (!en.isIntersecting) return;
+        links.forEach(l => l.classList.toggle("active", l.getAttribute("href") === `#${en.target.id}`));
+      });
+    }, { rootMargin: "-15% 0px -70% 0px" });
+    headings.forEach(h => observer.observe(h));
+
+    /* Reading progress */
+    progress.hidden = false;
+    const onScroll = () => {
+      const r = art.getBoundingClientRect();
+      const total = r.height - window.innerHeight;
+      const done = total > 0 ? Math.min(1, Math.max(0, -r.top / total)) : 1;
+      progress.style.width = `${done * 100}%`;
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    cleanupArticle = () => { observer.disconnect(); window.removeEventListener("scroll", onScroll); progress.hidden = true; };
+
     renderMore(slug, more);
   } catch (err) {
-    if (err.status === 404) showState("Article not found", "It may have been unpublished or renamed.", true);
-    else showState("This article couldn't load", err.message, true);
+    if (err.status === 404) showState("Guide not found", "It may have been unpublished or renamed.", true);
+    else showState("This guide couldn't load", err.message, true);
   }
+}
+
+async function renderMore(currentSlug, container) {
+  try {
+    const { articles } = await api();
+    const others = articles.filter(a => a.slug !== currentSlug).slice(0, 4);
+    if (!others.length) return;
+    const grid = el("ul", { class: "grid" });
+    others.forEach(a => grid.append(cardFor(a)));
+    spotlight(grid);
+    container.replaceChildren(el("h2", { text: "More guides" }), grid);
+    container.hidden = false;
+  } catch { /* suggestions are optional */ }
 }
 
 /* ---------- router ---------- */
 function route() {
+  const h = location.hash || "#/";
+  if (!h.startsWith("#/") && app.querySelector("article")) return; // in-page jump, not a page change
   closePopover();
-  const h = location.hash;
-  if ((h === "#sources" || h.startsWith("#src-")) && app.querySelector("article")) return; // in-page jump
+  cleanupArticle();
+  cleanupArticle = () => {};
   const m = h.match(/^#\/article\/(.+)$/);
   if (m) renderArticle(decodeURIComponent(m[1])); else renderHome();
 }
