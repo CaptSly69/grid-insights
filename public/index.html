@@ -54,13 +54,43 @@ a:hover { text-decoration-thickness: 2px; }
 .masthead.compact .site-name { font-size: 1.35rem; letter-spacing: -0.01em; }
 .masthead.compact .tagline { display: none; }
 
-/* Article list */
-.list { list-style: none; margin: 0; padding: 0; }
-.list li { padding: 2rem 0; border-bottom: 1px solid var(--rule); }
-.list h2 { margin: 0.35rem 0 0.5rem; font-size: 1.6rem; line-height: 1.25; font-weight: 600; letter-spacing: -0.01em; }
-.list h2 a { color: var(--ink); text-decoration: none; }
-.list h2 a:hover { color: var(--accent); }
-.list p { margin: 0; color: var(--muted); }
+/* Article cards */
+body.home .wrap { max-width: 64rem; }
+.cards {
+  list-style: none; margin: 0; padding: 2rem 0 0.5rem;
+  display: grid; gap: 1.25rem;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+}
+.card {
+  position: relative; display: flex; flex-direction: column; gap: 0.7rem;
+  background: var(--card); border: 1px solid var(--rule); border-radius: 12px;
+  padding: 1.35rem 1.4rem 1.2rem;
+}
+.card:hover { border-color: var(--accent); }
+.card:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.card h2 { margin: 0; font-size: 1.28rem; line-height: 1.3; font-weight: 600; letter-spacing: -0.01em; }
+.card h2 a { color: var(--ink); text-decoration: none; }
+.card h2 a:focus-visible { outline: none; }
+.card h2 a::after { content: ""; position: absolute; inset: 0; border-radius: 12px; }
+.card p {
+  margin: 0; color: var(--muted); font-size: 0.98rem; line-height: 1.6;
+  display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;
+}
+.card .read { margin-top: auto; padding-top: 0.4rem; font: 600 0.88rem var(--sans); color: var(--accent); }
+.card-top { display: flex; justify-content: space-between; align-items: center; gap: 0.75rem;
+  font: 500 0.82rem/1.4 var(--sans); color: var(--muted); }
+.pill { background: var(--accent-soft); color: var(--accent); border-radius: 999px; padding: 0.2rem 0.65rem; font-weight: 600; white-space: nowrap; }
+.finder { margin: 2rem 0 0; }
+.finder input {
+  width: 100%; max-width: 26rem; font: 1rem var(--sans); color: var(--ink); background: var(--card);
+  border: 1px solid var(--rule); border-radius: 8px; padding: 0.65rem 0.85rem;
+}
+.finder input:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+.finder + .cards { padding-top: 1.25rem; }
+.no-match { color: var(--muted); padding: 1rem 0; }
+.more { margin-top: 3.5rem; padding-top: 1.5rem; border-top: 1px solid var(--rule); }
+.more h2 { font-size: 1.15rem; margin: 0; }
+.more .cards { padding-top: 1rem; }
 .meta { font: 500 0.85rem/1.4 var(--sans); color: var(--muted); display: flex; gap: 1rem; flex-wrap: wrap; }
 .meta .sources { color: var(--accent); }
 
@@ -162,26 +192,62 @@ function showState(title, message, linkHome = false) {
 }
 
 /* ---------- home ---------- */
+function cardFor(a) {
+  const n = a.source_count || 0;
+  return el("li", { class: "card" },
+    el("div", { class: "card-top" },
+      el("time", { datetime: a.published_at || "", text: fmtDate(a.published_at) }),
+      n ? el("span", { class: "pill", text: `${n} source${n === 1 ? "" : "s"}` }) : null),
+    el("h2", {}, el("a", { href: `#/article/${encodeURIComponent(a.slug)}`, text: a.title })),
+    a.summary ? el("p", { text: a.summary }) : null,
+    el("span", { class: "read", "aria-hidden": "true", text: "Read article" }));
+}
+
 async function renderHome() {
+  document.body.classList.add("home");
   masthead.classList.remove("compact");
   document.title = SITE_NAME;
   showState("Loading articles", "");
   try {
     const { articles } = await api();
     if (!articles.length) return showState("No articles published yet", "New guides appear here once they're published.");
-    const list = el("ul", { class: "list reveal" });
-    for (const a of articles) {
-      list.append(el("li", {},
-        el("div", { class: "meta" },
-          el("time", { datetime: a.published_at || "", text: fmtDate(a.published_at) }),
-          a.source_count ? el("span", { class: "sources", text: `${a.source_count} source${a.source_count === 1 ? "" : "s"}` }) : null),
-        el("h2", {}, el("a", { href: `#/article/${encodeURIComponent(a.slug)}`, text: a.title })),
-        a.summary ? el("p", { text: a.summary }) : null));
+    const cards = el("ul", { class: "cards reveal" });
+    articles.forEach(a => cards.append(cardFor(a)));
+    const parts = [];
+    if (articles.length >= 6) {
+      const input = el("input", { type: "search", placeholder: "Search guides", "aria-label": "Search guides" });
+      const none = el("p", { class: "no-match", text: "No guides match that search." });
+      none.hidden = true;
+      input.addEventListener("input", () => {
+        const q = input.value.trim().toLowerCase();
+        let shown = 0;
+        [...cards.children].forEach((li, i) => {
+          const a = articles[i];
+          const hit = !q || (a.title + " " + (a.summary || "")).toLowerCase().includes(q);
+          li.hidden = !hit; if (hit) shown++;
+        });
+        none.hidden = shown > 0;
+      });
+      parts.push(el("div", { class: "finder" }, input));
+      app.replaceChildren(...parts, cards, none);
+    } else {
+      app.replaceChildren(cards);
     }
-    app.replaceChildren(list);
   } catch (err) {
     showState("Articles couldn't load", err.message);
   }
+}
+
+async function renderMore(currentSlug, container) {
+  try {
+    const { articles } = await api();
+    const others = articles.filter(a => a.slug !== currentSlug).slice(0, 3);
+    if (!others.length) return;
+    const cards = el("ul", { class: "cards" });
+    others.forEach(a => cards.append(cardFor(a)));
+    container.replaceChildren(el("h2", { text: "More guides" }), cards);
+    container.hidden = false;
+  } catch { /* the article still works without suggestions */ }
 }
 
 /* ---------- article ---------- */
@@ -237,6 +303,7 @@ function openPopover(btn, src, n) {
 }
 
 async function renderArticle(slug) {
+  document.body.classList.remove("home");
   masthead.classList.add("compact");
   showState("Loading article", "");
   try {
@@ -245,6 +312,8 @@ async function renderArticle(slug) {
     const [bodyMd, disclaimer] = splitDisclaimer(article.body_md, article.disclaimer);
     const { md, sources } = linkSources(bodyMd, claims);
 
+    const more = el("section", { class: "more" });
+    more.hidden = true;
     const body = el("div", { class: "body" });
     body.innerHTML = marked.parse(md);
     body.querySelectorAll("table").forEach(t => { const w = el("div", { class: "table-scroll" }); t.replaceWith(w); w.append(t); });
@@ -272,8 +341,10 @@ async function renderArticle(slug) {
         sources.length ? el("a", { class: "sources", href: "#sources", text: `Built from ${sources.length} source${sources.length === 1 ? "" : "s"}` }) : null),
       body,
       sources.length ? el("section", { class: "sources-list", id: "sources" }, el("h2", { text: "Sources" }), list) : null,
-      disclaimer ? el("p", { class: "disclaimer", text: disclaimer }) : null));
+      disclaimer ? el("p", { class: "disclaimer", text: disclaimer }) : null,
+      more));
     window.scrollTo(0, 0);
+    renderMore(slug, more);
   } catch (err) {
     if (err.status === 404) showState("Article not found", "It may have been unpublished or renamed.", true);
     else showState("This article couldn't load", err.message, true);
