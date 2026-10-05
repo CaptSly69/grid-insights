@@ -188,6 +188,18 @@ footer .foot { display: flex; flex-wrap: wrap; gap: 0.75rem 2rem; align-items: b
 footer .foot-brand { font: 400 1.25rem var(--display); color: #FFFFFF; letter-spacing: 0.08em; }
 footer .foot-brand span { font: italic 400 1rem var(--serif); color: var(--burly); letter-spacing: 0; margin-left: 0.4rem; }
 
+.chip.dl { cursor: pointer; color: var(--accent); border-color: var(--accent); font-weight: 600; font-family: var(--sans); }
+.chip.dl:hover { background: var(--accent); color: var(--on-accent); }
+.chip.dl[disabled] { opacity: 0.6; cursor: progress; }
+@media print {
+  .topbar, .toc, .rail, .more, footer, .back, .chip.dl, .progress, .popover { display: none !important; }
+  .layout { display: block !important; padding: 0 !important; }
+  .sources-end { display: block !important; }
+  body { background: #FFFFFF !important; color: #0E192F !important; }
+  .body { font-size: 11pt; }
+  .cite button { background: none !important; color: #BE8562 !important; padding: 0; }
+  a { color: inherit; }
+}
 @media (prefers-reduced-motion: no-preference) {
   .card, .card::before { transition: border-color 0.2s ease, opacity 0.25s ease; }
   .reveal { animation: rise 0.4s ease-out both; }
@@ -406,6 +418,157 @@ function openPopover(btn, src, n) {
   popover = { node, owner: btn };
 }
 
+/* ---------- PDF download (library and fonts load only when clicked) ---------- */
+const PDF_LIB = "https://cdn.jsdelivr.net/npm/pdfmake@0.2.20/build/pdfmake.min.js";
+const FONT_BASE = "https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/";
+const BRAND = { nile: "#1C335E", muesli: "#BE8562", midnight: "#0E192F", iron: "#D2D2D2", muted: "#5A6275", cream: "#F7F2EB" };
+let pdfLib = null;
+function loadPdfLib() {
+  if (pdfLib) return pdfLib;
+  pdfLib = new Promise((resolve, reject) => {
+    const s = document.createElement("script");
+    s.src = PDF_LIB; s.async = true;
+    s.onload = () => {
+      const f = (p) => FONT_BASE + p;
+      window.pdfMake.fonts = {
+        Poppins: { normal: f("poppins/Poppins-Regular.ttf"), bold: f("poppins/Poppins-SemiBold.ttf"), italics: f("poppins/Poppins-Italic.ttf"), bolditalics: f("poppins/Poppins-Italic.ttf") },
+        Cantata: { normal: f("cantataone/CantataOne-Regular.ttf"), bold: f("cantataone/CantataOne-Regular.ttf"), italics: f("cantataone/CantataOne-Regular.ttf"), bolditalics: f("cantataone/CantataOne-Regular.ttf") },
+        Judson: { normal: f("judson/Judson-Regular.ttf"), bold: f("judson/Judson-Bold.ttf"), italics: f("judson/Judson-Italic.ttf"), bolditalics: f("judson/Judson-Italic.ttf") },
+      };
+      resolve(window.pdfMake);
+    };
+    s.onerror = () => { pdfLib = null; reject(new Error("PDF library failed to load")); };
+    document.head.append(s);
+  });
+  return pdfLib;
+}
+const decodeHtml = (str) => { const t = document.createElement("textarea"); t.innerHTML = str; return t.value; };
+
+function pdfMarkers(md, sources, claims) {
+  const numberOf = new Map(sources.map((s, i) => [s.source_id, i + 1]));
+  const sourceOfClaim = new Map(claims.map((c) => [String(c.claim_id), c.source_id]));
+  return md.replace(/(?:[ \t]*\[c(\d+)\])+/g, (run) => {
+    const nums = [];
+    for (const m of run.matchAll(/\[c(\d+)\]/g)) {
+      const n = numberOf.get(sourceOfClaim.get(m[1]));
+      if (n && !nums.includes(n)) nums.push(n);
+    }
+    return nums.length ? `⟦${nums.join(",")}⟧` : "";
+  });
+}
+function pdfInline(tokens, base = {}) {
+  const out = [];
+  for (const t of tokens || []) {
+    if (t.type === "strong") out.push(...pdfInline(t.tokens, { ...base, bold: true }));
+    else if (t.type === "em") out.push(...pdfInline(t.tokens, { ...base, italics: true }));
+    else if (t.type === "link") out.push(...pdfInline(t.tokens, { ...base, link: t.href, color: BRAND.nile, decoration: "underline" }));
+    else if (t.type === "br") out.push({ text: "\n" });
+    else if (t.type !== "text" && t.type !== "escape" && t.tokens) out.push(...pdfInline(t.tokens, base));
+    else if (t.type === "text" && t.tokens) out.push(...pdfInline(t.tokens, base));
+    else {
+      decodeHtml(t.text ?? t.raw ?? "").split(/(⟦[\d,]+⟧)/).forEach((part) => {
+        if (!part) return;
+        const m = part.match(/^⟦([\d,]+)⟧$/);
+        out.push(m ? { text: m[1], sup: true, fontSize: 7, bold: true, color: BRAND.muesli } : { text: part, ...base });
+      });
+    }
+  }
+  return out;
+}
+function pdfBlocks(tokens) {
+  const out = [];
+  for (const t of tokens) {
+    if (t.type === "heading" && t.depth <= 2) {
+      out.push({ stack: [
+        { canvas: [{ type: "line", x1: 0, y1: 0, x2: 36, y2: 0, lineWidth: 1.6, lineColor: BRAND.muesli }], margin: [0, 14, 0, 7] },
+        { text: pdfInline(t.tokens), style: "h2" }], headlineLevel: 1, unbreakable: true });
+    } else if (t.type === "heading") out.push({ text: pdfInline(t.tokens), style: "h3" });
+    else if (t.type === "paragraph") out.push({ text: pdfInline(t.tokens), style: "p" });
+    else if (t.type === "list") {
+      const items = t.items.map((it) => {
+        const parts = pdfBlocks(it.tokens.map((x) => (x.type === "text" ? { type: "paragraph", tokens: x.tokens || [x] } : x)));
+        parts.forEach((p) => { if (p.style === "p") p.style = "li"; });
+        return parts.length === 1 ? parts[0] : { stack: parts };
+      });
+      out.push({ [t.ordered ? "ol" : "ul"]: items, markerColor: BRAND.muesli, margin: [6, 0, 0, 8] });
+    } else if (t.type === "blockquote") {
+      out.push({ table: { widths: [3, "*"], body: [[{ text: "", fillColor: BRAND.muesli }, { stack: pdfBlocks(t.tokens), margin: [8, 2, 0, 0] }]] },
+        layout: "noBorders", margin: [0, 2, 0, 8] });
+    } else if (t.type === "table") {
+      const head = t.header.map((c) => ({ text: pdfInline(c.tokens), bold: true, color: "#FFFFFF", fillColor: BRAND.nile }));
+      const rows = t.rows.map((r) => r.map((c) => ({ text: pdfInline(c.tokens) })));
+      out.push({ table: { headerRows: 1, widths: head.map(() => "*"), body: [head, ...rows] }, layout: "lightHorizontalLines", fontSize: 8.5, margin: [0, 4, 0, 10] });
+    } else if (t.type === "code") out.push({ text: t.text, style: "p" });
+  }
+  return out;
+}
+function buildPdfDoc({ article, bodyMd, sources, claims, disclaimer, mins }) {
+  const url = `${location.origin}/#/article/${encodeURIComponent(article.slug)}`;
+  const meta = [`Published ${fmtDate(article.published_at)}`, `${mins} min read`, sources.length ? `Built from ${plural(sources.length, "source")}` : ""].filter(Boolean).join("     ");
+  return {
+    pageSize: "A4",
+    pageMargins: [56, 70, 56, 62],
+    info: { title: article.title, author: "GRID Property Ventures", subject: article.summary || "", creator: SITE_NAME },
+    defaultStyle: { font: "Poppins", fontSize: 10, lineHeight: 1.45, color: BRAND.midnight },
+    background: (page, size) => ({ canvas: [
+      { type: "rect", x: 0, y: 0, w: size.width, h: 7, color: BRAND.nile },
+      { type: "rect", x: 0, y: 7, w: size.width, h: 2, color: BRAND.muesli }] }),
+    header: (page) => ({ margin: [56, 26, 56, 0], columns: [
+      { width: "auto", text: [{ text: "GRID", font: "Cantata", fontSize: 14, color: BRAND.nile, characterSpacing: 2 },
+                              { text: "  Insights", font: "Judson", italics: true, fontSize: 12.5, color: BRAND.muesli }] },
+      { width: "*", text: page === 1 ? "" : article.title, alignment: "right", fontSize: 7.5, color: BRAND.muted, margin: [16, 4, 0, 0] }] }),
+    footer: (page, count) => ({ margin: [56, 22, 56, 0], columns: [
+      { width: "*", text: "GRID Property Ventures. General information only, not legal, tax or investment advice.", fontSize: 7, color: BRAND.muted },
+      { width: 70, text: `Page ${page} of ${count}`, alignment: "right", fontSize: 7, color: BRAND.muted }] }),
+    content: [
+      { text: article.title, style: "title" },
+      article.summary ? { text: article.summary, style: "dek" } : null,
+      { text: meta, style: "meta" },
+      { canvas: [{ type: "line", x1: 0, y1: 0, x2: 483, y2: 0, lineWidth: 0.6, lineColor: BRAND.iron }], margin: [0, 2, 0, 4] },
+      ...pdfBlocks(marked.lexer(pdfMarkers(bodyMd, sources, claims))),
+      sources.length ? { stack: [
+        { canvas: [{ type: "line", x1: 0, y1: 0, x2: 36, y2: 0, lineWidth: 1.6, lineColor: BRAND.muesli }], margin: [0, 16, 0, 7] },
+        { text: "Sources", style: "h2" }], unbreakable: true } : null,
+      sources.length ? { layout: "noBorders", table: { widths: [16, "*"], dontBreakRows: true, body: sources.map((s, i) => [
+        { text: String(i + 1), bold: true, color: BRAND.muesli, fontSize: 9 },
+        { margin: [0, 0, 0, 5], stack: [
+          { text: s.title || s.url, link: s.url, bold: true, color: BRAND.nile, fontSize: 9 },
+          s.publisher ? { text: s.publisher, fontSize: 8, color: BRAND.muted } : null,
+          { text: s.url, link: s.url, fontSize: 7, color: BRAND.muted }].filter(Boolean) }]) } } : null,
+      disclaimer ? { margin: [0, 14, 0, 0], table: { widths: ["*"], body: [[{ text: disclaimer, fontSize: 8.5, color: BRAND.muted, margin: [10, 8, 10, 8] }]] },
+        layout: { hLineWidth: () => 0, vLineWidth: (i) => (i === 0 ? 3 : 0), vLineColor: () => BRAND.muesli, fillColor: () => BRAND.cream } } : null,
+      { text: [{ text: "Read online with clickable sources: " }, { text: url, link: url, color: BRAND.nile }], fontSize: 8, color: BRAND.muted, margin: [0, 12, 0, 0] },
+    ].filter(Boolean),
+    styles: {
+      title: { font: "Cantata", fontSize: 22, lineHeight: 1.18, color: BRAND.nile, margin: [0, 8, 0, 8] },
+      dek: { font: "Judson", italics: true, fontSize: 13, lineHeight: 1.3, color: BRAND.muted, margin: [0, 0, 0, 8] },
+      meta: { fontSize: 8.5, color: BRAND.muted, margin: [0, 0, 0, 4] },
+      h2: { font: "Cantata", fontSize: 14.5, lineHeight: 1.25, color: BRAND.nile, margin: [0, 0, 0, 6] },
+      h3: { bold: true, fontSize: 11, margin: [0, 8, 0, 4] },
+      p: { margin: [0, 0, 0, 8] },
+      li: { margin: [0, 0, 0, 4] },
+    },
+    pageBreakBefore: (node, followingOnPage) => node.headlineLevel === 1 && followingOnPage.length === 0,
+  };
+}
+async function downloadPdf(btn, data) {
+  const label = btn.textContent;
+  btn.disabled = true; btn.textContent = "Preparing PDF";
+  try {
+    const pdfMake = await loadPdfLib();
+    const doc = buildPdfDoc(data);
+    await Promise.race([
+      new Promise((resolve, reject) => { try { pdfMake.createPdf(doc).download(`${data.article.slug}.pdf`, resolve); } catch (e) { reject(e); } }),
+      new Promise((_, reject) => setTimeout(() => reject(new Error("PDF timed out")), 30000)),
+    ]);
+  } catch (err) {
+    console.error(err);
+    if (window.confirm("The PDF couldn't be created in this browser. Open the print dialog instead? Choose \"Save as PDF\" as the printer.")) window.print();
+  } finally {
+    btn.disabled = false; btn.textContent = label;
+  }
+}
+
 let cleanupArticle = () => {};
 async function renderArticle(slug) {
   tools.replaceChildren(el("a", { class: "nav-link", href: "#/", text: "All guides" }));
@@ -447,6 +610,9 @@ async function renderArticle(slug) {
       document.getElementById(wide ? "rail" : "sources-end").scrollIntoView({ behavior: "smooth", block: wide ? "center" : "start" });
     });
 
+    const pdfButton = el("button", { class: "chip dl", type: "button", "aria-label": "Download this article as a PDF", text: "Download PDF" });
+    pdfButton.addEventListener("click", () => downloadPdf(pdfButton, { article, bodyMd, sources, claims, disclaimer, mins }));
+
     const art = el("article", {},
       el("a", { class: "back", href: "#/", text: "All guides" }),
       el("h1", { text: article.title }),
@@ -455,7 +621,8 @@ async function renderArticle(slug) {
         el("time", { class: "chip", datetime: article.published_at || "", text: `Published ${fmtDate(article.published_at)}` }),
         updated ? el("time", { class: "chip", datetime: updated, text: `Updated ${fmtDate(updated)}` }) : null,
         el("span", { class: "chip", text: `${mins} min read` }),
-        sources.length ? sourcesChip : null),
+        sources.length ? sourcesChip : null,
+        pdfButton),
       body,
       sources.length ? el("section", { class: "sources-end", id: "sources-end" },
         el("p", { class: "side-title", text: "Sources" }), sourceList(sources, "end-src")) : null,
