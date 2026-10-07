@@ -160,6 +160,53 @@ details.group summary { cursor: pointer; font-weight: 600; margin-bottom: 0.75re
 .form-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr)); }
 .form-grid .wide { grid-column: 1 / -1; }
 
+/* flow of five steps */
+.flowwrap { padding-top: 1.6rem; }
+.page-title { display: grid; gap: 0.2rem; margin-bottom: 1.1rem; }
+.page-title h1 { font-size: 1.9rem; }
+.page-title p { margin: 0; color: var(--muted); }
+.flow { display: flex; flex-wrap: wrap; gap: 8px; }
+.flow a { flex: 1 1 200px; min-height: 104px; display: flex; flex-direction: column; justify-content: center; gap: 3px; min-width: 0;
+  padding: 12px 40px 12px 44px; text-decoration: none; background: #ECE6DD; color: #1C335E;
+  clip-path: polygon(0 0, calc(100% - 26px) 0, 100% 50%, calc(100% - 26px) 100%, 0 100%, 26px 50%); }
+.flow a:first-child { padding-left: 22px; clip-path: polygon(0 0, calc(100% - 26px) 0, 100% 50%, calc(100% - 26px) 100%, 0 100%); }
+.flow a.attention { background: #F5E1D2; color: #0E192F; }
+.flow a[aria-current="page"] { background: #1C335E; color: #FFFFFF; }
+.flow a:focus-visible { outline: none; box-shadow: inset 0 0 0 3px #BE8562; }
+.flow .k { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; letter-spacing: 0.04em; color: #4A5266; }
+.flow a.attention .k, .flow a.attention .st { color: #6E3A1A; }
+.flow a[aria-current="page"] .k, .flow a[aria-current="page"] .st { color: #E2B985; }
+.flow .cnt { margin-left: auto; min-width: 26px; padding: 2px 9px; border-radius: 999px; text-align: center; font-size: 13px; font-weight: 700; letter-spacing: 0; background: #FFFFFF; color: #1C335E; }
+.flow a.attention .cnt { background: #BE8562; color: #0E192F; }
+.flow a[aria-current="page"] .cnt { background: #E2B985; color: #0E192F; }
+.flow .t { display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 600; }
+.flow .st { font-size: 13px; color: #4A5266; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.step-panel { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: clamp(1.1rem, 2.5vw, 1.75rem); display: grid; gap: 1.25rem; margin-top: 1.25rem; }
+.step-head { display: grid; gap: 0.3rem; }
+.step-head .k { font-size: 13px; font-weight: 600; color: var(--warn); }
+.step-head h1 { margin: 0; font-size: 1.65rem; }
+.step-head p { margin: 0; color: var(--muted); max-width: 48rem; }
+.step-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.75rem; border-top: 1px solid var(--border); padding-top: 1rem; }
+.step-foot span { color: var(--muted); font-size: 0.9rem; }
+.cards { display: grid; gap: 0.9rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 17.5rem), 1fr)); }
+.acard { border: 1px solid var(--border); border-radius: 14px; padding: 1rem 1.1rem; display: flex; flex-direction: column; gap: 0.6rem; background: var(--card); }
+.acard h3 { margin: 0; font: 400 1.08rem/1.35 var(--display); color: var(--accent); }
+.acard .m { color: var(--muted); font-size: 0.84rem; }
+.acard .acts { margin-top: auto; display: flex; flex-wrap: wrap; gap: 0.45rem; }
+.held { border: 2px solid var(--muesli); border-radius: 14px; padding: 1.1rem 1.2rem; display: grid; gap: 0.75rem; }
+.held h3 { margin: 0; font: 400 1.3rem/1.3 var(--display); color: var(--accent); }
+.held ul { margin: 0; padding-left: 1.2rem; display: grid; gap: 0.25rem; }
+.allclear { border-radius: 14px; padding: 1.1rem 1.2rem; background: var(--good-soft); color: var(--good); }
+.duo { display: flex; flex-wrap: wrap; gap: 0.9rem; }
+.duo > div { flex: 1 1 20rem; border-radius: 14px; padding: 1rem 1.2rem; display: grid; gap: 0.25rem; }
+.duo .dark { background: #1C335E; color: #FFFFFF; }
+.duo .dark .k { color: #E2B985; font-size: 13px; font-weight: 600; }
+.duo .dark .big { font: 400 1.5rem var(--display); }
+.duo .dark .s { color: #D2D2D2; font-size: 0.9rem; }
+.duo .light { background: var(--subtle); }
+.duo .light .k { color: var(--warn); font-size: 13px; font-weight: 600; }
+.gear { display: inline-flex; align-items: center; gap: 0.4rem; }
+
 /* login */
 .login { min-height: 70vh; display: grid; place-items: center; }
 .login .panel { width: min(24rem, 100%); display: grid; gap: 0.9rem; }
@@ -176,21 +223,19 @@ dialog ul { padding-left: 1.2rem; }
 <body>
 <header class="topbar" id="topbar" hidden>
   <div class="shell">
-    <a class="brand" href="#/topics" aria-label="GRID Insights admin"><span class="brand-word">GRID</span><span class="brand-sub">Insights</span> <small>ADMIN</small></a>
-    <nav class="tabs" aria-label="Sections">
-      <a href="#/topics" data-tab="topics">Topics <span class="count" id="c-queued" hidden></span></a>
-      <a href="#/review" data-tab="review">Review <span class="count" id="c-review" hidden></span></a>
-      <a href="#/runs" data-tab="runs">Runs</a>
-      <a href="#/cody" data-tab="cody">Cody</a>
-      <a href="#/settings" data-tab="settings">Settings</a>
-    </nav>
+    <a class="brand" href="#/queue" aria-label="GRID Insights admin"><span class="brand-word">GRID</span><span class="brand-sub">Insights</span> <small>ADMIN</small></a>
     <span class="spacer"></span>
     <div class="top-links">
-      <a class="btn small" href="/" target="_blank" rel="noopener">View site</a>
+      <a class="btn small" href="/" target="_blank" rel="noopener">View website</a>
+      <a class="btn small gear" href="#/settings" id="gear"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"></path></svg>Settings</a>
       <button class="btn small" id="logout" type="button">Sign out</button>
     </div>
   </div>
 </header>
+<div class="shell flowwrap" id="flowwrap" hidden>
+  <div class="page-title"><h1>Article pipeline</h1><p>Every day, a topic moves from left to right until it is live on the website and in Cody. Click a step to open it.</p></div>
+  <nav class="flow" id="flow" aria-label="Pipeline steps"></nav>
+</div>
 <main class="shell" id="app" aria-live="polite"></main>
 <dialog id="dialog"></dialog>
 <div class="toast" id="toast" role="status" hidden></div>
@@ -260,6 +305,7 @@ function confirmDialog(title, message, okText = "Confirm", list = null, danger =
 /* ---------- login ---------- */
 function showLogin() {
   topbar.hidden = true;
+  document.getElementById("flowwrap").hidden = true;
   document.title = "Sign in | GRID Insights admin";
   const pw = el("input", { type: "password", id: "pw", autocomplete: "current-password", required: true });
   const err = el("p", { class: "small", style: "color:var(--bad); margin:0", role: "alert" });
@@ -282,13 +328,77 @@ document.getElementById("logout").addEventListener("click", async () => {
   showLogin();
 });
 
-async function refreshCounts() {
+/* ---------- the five-step flow ---------- */
+const ICONS = {
+  queue: '<path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/>',
+  research: '<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>',
+  review: '<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>',
+  published: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/>',
+  cody: '<path d="M4 19.5V5a2 2 0 0 1 2-2h14v15H6.5A2.5 2.5 0 0 0 4 20.5"/><path d="M20 18v3H6.5"/><path d="M9 8h7"/><path d="M9 12h5"/>',
+};
+const STEPS = [
+  { key: "queue", title: "Queue" }, { key: "research", title: "Research" }, { key: "review", title: "Review" },
+  { key: "published", title: "Published" }, { key: "cody", title: "Cody" },
+];
+const RUN_LABEL = { succeeded: "Written", failed: "Stopped", running: "Running now" };
+let currentStep = "queue";
+let flowInfo = {};
+
+function shortDate(iso) {
+  if (!iso) return "";
+  const d = new Date(iso), now = new Date();
+  const day = d.toDateString() === now.toDateString() ? "Today" : d.toDateString() === new Date(now - 86400000).toDateString() ? "Yesterday" : fmtDay(iso);
+  return `${day}, ${d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true })}`;
+}
+function nextWriterRun() {
+  const manilaHour = Number(new Date().toLocaleString("en-US", { timeZone: "Asia/Manila", hour: "numeric", hour12: false }));
+  return manilaHour < 14 ? "Today, 2:00 PM" : "Tomorrow, 2:00 PM";
+}
+
+function drawFlow() {
+  const nav = document.getElementById("flow");
+  nav.replaceChildren(...STEPS.map((st, i) => {
+    const info = flowInfo[st.key] || {};
+    const a = el("a", { href: `#/${st.key}`, class: info.attention ? "attention" : "" },
+      el("span", { class: "k" }, `STEP ${i + 1}`, info.count != null ? el("span", { class: "cnt", text: String(info.count) }) : null),
+      el("span", { class: "t" }, (() => { const sp = el("span", { "aria-hidden": "true", style: "display:inline-flex" }); sp.innerHTML = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${ICONS[st.key]}</svg>`; return sp; })(), st.title),
+      el("span", { class: "st", text: info.status || "" }));
+    if (st.key === currentStep) a.setAttribute("aria-current", "page");
+    return a;
+  }));
+}
+
+async function refreshFlow() {
+  drawFlow();
   try {
-    const o = await api("overview");
-    const q = document.getElementById("c-queued"), r = document.getElementById("c-review");
-    q.textContent = o.queued; q.hidden = !o.queued;
-    r.textContent = o.to_review; r.hidden = !o.to_review;
-  } catch { /* counts are optional */ }
+    const [o, t, c] = await Promise.all([api("overview"), api("topics"), api("cody").catch(() => null)]);
+    const queued = t.topics.filter((x) => x.status === "queued");
+    const running = t.topics.filter((x) => x.status === "in_progress");
+    const lr = o.last_run;
+    const codyCounts = {};
+    (c?.articles || []).forEach((a) => { codyCounts[a.status || "none"] = (codyCounts[a.status || "none"] || 0) + 1; });
+    const codyErrors = (codyCounts.error || 0) + (codyCounts.sync_failed || 0);
+    flowInfo = {
+      queue: { count: queued.length, attention: queued.length < 3,
+        status: queued.length ? (queued.length < 3 ? `Only ${queued.length} left: add topics` : `Next: ${queued[0].title}`) : "Empty: add topics" },
+      research: { count: running.length || null, attention: lr?.status === "failed",
+        status: running.length ? `Writing: ${running[0].title}` : lr ? `Last run ${shortDate(lr.started_at)}: ${RUN_LABEL[lr.status] || lr.status}` : "Runs daily at 2:00 PM" },
+      review: { count: o.to_review, attention: o.to_review > 0,
+        status: o.to_review ? `${plural(o.to_review, "article")} need${o.to_review === 1 ? "s" : ""} you` : "All clear" },
+      published: { count: o.published, status: "Live on the website" },
+      cody: !c ? { status: "Status unavailable" } : !c.configured ? { attention: true, status: "Not connected yet" } :
+        { count: codyCounts.synced || 0, attention: codyErrors > 0, status: codyErrors ? `${plural(codyErrors, "article")} need a retry` : "Next sync 5:00 PM" },
+    };
+    drawFlow();
+  } catch { /* the flow is a summary; the step itself still works */ }
+}
+const refreshCounts = () => refreshFlow();
+
+function stepHead(n, title, text) {
+  return el("div", { class: "step-head" }, el("span", { class: "k", text: `Step ${n} of 5` }), el("h1", { text: title }), el("p", { text }));
+}
+function stepFoot(text, label, href) {
+  return el("div", { class: "step-foot" }, el("span", { text }), el("a", { class: "btn", href, text: label }));
 }
 
 /* ---------- topics ---------- */
@@ -316,7 +426,7 @@ async function renderTopics() {
     queueList.append(el("li", { class: i === 0 ? "next" : "" },
       el("span", { class: "pos", text: String(i + 1) }),
       el("div", {},
-        el("div", { class: "title" }, t.title, i === 0 ? el("span", { class: "badge queued", style: "margin-left:0.5rem", text: "Next" }) : null),
+        el("div", { class: "title" }, t.title, i === 0 ? el("span", { class: "badge queued", style: "margin-left:0.5rem", text: `Writes next: ${nextWriterRun()}` }) : null),
         t.notes ? el("div", { class: "notes", text: t.notes }) : null),
       el("div", { class: "actions" },
         el("button", { class: "btn icon-btn", type: "button", "aria-label": `Move "${t.title}" up`, title: "Move up", disabled: i === 0,
@@ -352,9 +462,8 @@ async function renderTopics() {
   // Done topics show without the status badge column for compactness
   const doneList = simpleList(groups.done, (t) => [articleLink(t), requeue(t)]);
 
-  app.replaceChildren(el("div", { class: "stack" },
-    el("div", {}, el("h1", { text: "Topics" }),
-      el("p", { class: "lede", text: "The scheduled writer takes the topic at the top of the queue each run. Reorder with the arrows; new topics go to the end." })),
+  app.replaceChildren(el("div", { class: "step-panel" },
+    stepHead(1, "Topic queue", "Each day at 2:00 PM, the topic at the top is researched and written. Add new ideas below, and use the arrows to change what gets written next."),
     el("section", { class: "panel" }, form),
     groups.in_progress.length ? el("section", {}, el("h2", { text: "Running now" }), simpleList(groups.in_progress, (t) => [requeue(t, "front")])) : null,
     el("section", {}, el("h2", { text: `Queue (${groups.queued.length})` }),
@@ -363,7 +472,8 @@ async function renderTopics() {
     groups.skipped.length ? el("details", { class: "group" }, el("summary", { text: `Skipped (${groups.skipped.length})` }),
       simpleList(groups.skipped, (t) => [requeue(t), t.runs === 0 ? el("button", { class: "btn small danger", type: "button", text: "Delete",
         onclick: async () => { await act(() => api(`topics/${t.id}`, { method: "DELETE" }), "Topic deleted."); renderTopics(); } }) : null])) : null,
-    el("details", { class: "group" }, el("summary", { text: `Done (${groups.done.length})` }), doneList)));
+    el("details", { class: "group" }, el("summary", { text: `Already written (${groups.done.length})` }), doneList),
+    stepFoot("When a topic has been written, you'll find it under Research.", "Next step: Research", "#/research")));
 }
 
 /* ---------- review list ---------- */
@@ -398,6 +508,7 @@ async function renderReviewList() {
 /* ---------- review detail ---------- */
 async function renderReviewDetail(id) {
   const { article, claims, checks, cody } = await api(`articles/${id}`);
+  currentStep = article.status === "published" ? "published" : "review"; drawFlow();
   document.title = `${article.title} | Review`;
   const byId = new Map(claims.map((c) => [Number(c.id), c]));
   let editing = false;
@@ -505,9 +616,9 @@ async function renderReviewDetail(id) {
       el("div", { class: "claims-list" }, other.map(claimCard))) : null);
 
   function draw() {
-    app.replaceChildren(el("div", {},
+    app.replaceChildren(el("div", { class: "step-panel" },
       el("div", { class: "detail-head" },
-        el("a", { href: "#/review", class: "small", text: "Back to review list" }),
+        el("a", { href: article.status === "published" ? "#/published" : "#/review", class: "small", text: article.status === "published" ? "Back to Published" : "Back to Review" }),
         el("div", { class: "row" }, badge(article.status), article.topic ? el("span", { class: "muted small", text: `Topic: ${article.topic}` }) : null,
           el("span", { class: "muted small", text: `Updated ${fmt(article.updated_at)}` }),
           article.status === "published" || cody ? codyBadge(cody?.status) : null,
@@ -634,9 +745,8 @@ async function renderCody() {
       badge(r.error || (s.errors || []).length ? "failed" : "succeeded", r.error || (s.errors || []).length ? "Problem" : "OK"));
   })) : el("p", { class: "empty", text: "No syncs yet. The daily sync runs at 5:00 PM." });
 
-  app.replaceChildren(el("div", { class: "stack" },
-    el("div", {}, el("h1", { text: "Cody knowledge base" }),
-      el("p", { class: "lede", text: "Every day at 5:00 PM, newly published articles are sent to your Cody folder as GRID-branded PDFs. Edited articles are replaced and unpublished ones are removed, so Cody always matches the website." })),
+  app.replaceChildren(el("div", { class: "step-panel" },
+    stepHead(5, "Cody knowledge base", "Every day at 5:00 PM, new articles are sent to your Cody folder as GRID-branded PDFs, so your bot can answer from them. Edited articles are replaced and unpublished ones are removed."),
     setup,
     data.has_key ? foldersBox : null,
     el("section", { class: "panel row", style: "justify-content:space-between" },
@@ -647,7 +757,141 @@ async function renderCody() {
         (counts.error || counts.sync_failed) ? [codyBadge("error"), el("span", { text: String((counts.error || 0) + (counts.sync_failed || 0)) })] : null),
       el("div", { class: "row" }, progress, syncBtn)),
     el("section", {}, el("h2", { text: "Articles" }), list),
-    el("section", {}, el("h2", { text: "Recent syncs" }), runs)));
+    el("section", {}, el("h2", { text: "Recent syncs" }), runs),
+    stepFoot("That's the full flow. Tomorrow it starts again from the queue.", "Back to step 1: Queue", "#/queue")));
+}
+
+/* ---------- Research (step 2) ---------- */
+async function renderResearch() {
+  document.title = "Research | GRID Insights admin";
+  const [{ runs }, { topics }] = await Promise.all([api("runs"), api("topics")]);
+  const running = topics.find((t) => t.status === "in_progress");
+  const next = topics.find((t) => t.status === "queued");
+  const dur = (a, b) => { if (!a || !b) return ""; const m = Math.round((new Date(b) - new Date(a)) / 60000); return m < 1 ? "under a minute" : `${m} min`; };
+  const list = runs.length ? el("div", { class: "list" }, runs.slice(0, 20).map((r) => {
+    const c = r.claims || {};
+    const total = (c.verified || 0) + (c.unverified || 0) + (c.conflicted || 0);
+    const detail = r.status === "failed" ? (r.error ? `Stopped: ${r.error}` : "Stopped before finishing.")
+      : r.status === "running" ? "Researching and checking facts now."
+      : total ? `${total} facts checked, ${c.verified || 0} confirmed against their sources${r.finished_at ? `, took ${dur(r.started_at, r.finished_at)}` : ""}.` : "Finished.";
+    const det = el("details", { class: "run" },
+      el("summary", {},
+        el("span", { class: "rid", text: shortDate(r.started_at).replace(", ", "\n") , style: "white-space:pre-line; font-weight:500; font-size:0.82rem" }),
+        el("div", {}, el("div", { style: "font-weight:600", text: r.topic || "(topic removed)" }),
+          el("div", { class: "meta" }, el("span", { text: detail }),
+            r.article ? el("span", {}, "Article: ", el("a", { href: `#/review/${r.article.id}`, text: label(r.article.status) })) : null)),
+        badge(r.status, RUN_LABEL[r.status] || label(r.status))),
+      el("div", { class: "body" }, el("p", { class: "muted", style: "margin:0", text: "Loading the step-by-step log" })));
+    det.addEventListener("toggle", async () => {
+      if (!det.open || det.dataset.loaded) return;
+      det.dataset.loaded = "1";
+      const body = det.querySelector(".body");
+      try {
+        const { run } = await api(`runs/${r.id}`);
+        const entries = Array.isArray(run.log) ? run.log : [];
+        body.replaceChildren(run.error ? el("div", { class: "err", text: run.error }) : null,
+          entries.length ? el("ul", { class: "log" }, entries.map((x) => el("li", {}, el("span", { class: "st", text: x.stage || x.step || "" }), el("span", { text: x.message || x.detail || JSON.stringify(x) }))))
+            : el("p", { class: "muted", style: "margin:0", text: run.error ? "" : "This run didn't save a step-by-step log." }));
+      } catch (e) { body.replaceChildren(el("p", { class: "muted", text: e.message })); }
+    });
+    return det;
+  })) : el("p", { class: "empty", text: "No runs yet. The first one happens at 2:00 PM." });
+
+  app.replaceChildren(el("div", { class: "step-panel" },
+    stepHead(2, "Research and writing", "At 2:00 PM, Claude researches the next topic, checks every fact against its source, and writes a draft. This needs your computer on, with Claude Desktop open."),
+    el("div", { class: "duo" },
+      el("div", { class: "dark" },
+        el("span", { class: "k", text: running ? "Running now" : "Next run" }),
+        el("span", { class: "big", text: running ? "Writing" : nextWriterRun() }),
+        el("span", { class: "s", text: running ? running.title : next ? `Will write: ${next.title}` : "The queue is empty. Add a topic in step 1." })),
+      el("div", { class: "light" },
+        el("span", { class: "k", text: "Need an article sooner?" }),
+        el("span", { text: "In Claude Desktop, open Cowork, then Scheduled, then Daily article pipeline, and choose Run now." }),
+        el("span", { class: "muted small", text: "Start one run at a time, and wait for it to finish before starting another." }))),
+    el("section", {}, el("h2", { text: "Recent runs" }), list),
+    stepFoot("Finished drafts are checked at 4:00 PM. Anything that needs you appears under Review.", "Next step: Review", "#/review")));
+}
+
+/* ---------- Review (step 3) ---------- */
+async function renderReview() {
+  document.title = "Review | GRID Insights admin";
+  const { articles } = await api("articles");
+  const waiting = articles.filter((a) => a.status === "draft" || a.status === "needs_review");
+  const details = await Promise.all(waiting.map((a) => api(`articles/${a.id}`).catch(() => null)));
+
+  const publishAnyway = async (a, problems) => {
+    const go = await confirmDialog("Publish this article anyway?", problems.length ? "These problems are still open:" : "", "Publish anyway", problems.length ? problems : null, true);
+    if (!go) return;
+    await act(() => api(`articles/${a.id}/status`, { method: "POST", body: { status: "published", force: true } }), "Published. It will appear on the website within a minute.");
+    refreshFlow(); renderReview();
+  };
+  const writeAgain = async (a) => {
+    if (!(await confirmDialog("Write this article again?", "This version will be archived and its topic moved to the front of the queue, so the next run writes a fresh version.", "Write it again"))) return;
+    await act(() => api(`articles/${a.id}/rerun`, { method: "POST" }), "Done. The topic is first in the queue.");
+    refreshFlow(); renderReview();
+  };
+
+  const cards = waiting.map((a, i) => {
+    const d = details[i];
+    const auto = d?.article?.critic_report?.auto_review;
+    const problems = [...new Set([...(auto?.problems || []), ...(d?.checks?.problems || [])])];
+    return el("article", { class: "held" },
+      el("div", { class: "row" }, badge(a.status, a.status === "needs_review" ? "Held for review" : "Draft, not checked yet"),
+        el("span", { class: "muted small", text: `Written ${shortDate(a.created_at)}` })),
+      el("h3", { text: a.title }),
+      problems.length ? el("div", {}, el("strong", { class: "small", text: "What needs attention" }), el("ul", {}, problems.map((x) => el("li", { text: x }))))
+        : el("p", { class: "muted small", style: "margin:0", text: a.status === "draft" ? "The 4:00 PM check hasn't reviewed this yet. You can wait for it, or open it now." : "No open problems listed. Open it to read it before publishing." }),
+      el("div", { class: "row" },
+        el("a", { class: "btn primary", href: `#/review/${a.id}`, text: "Open and fix" }),
+        el("button", { class: "btn", type: "button", text: "Write it again", onclick: () => writeAgain(a) }),
+        el("button", { class: "btn", type: "button", style: "color:var(--muted)", text: "Publish anyway", onclick: () => publishAnyway(a, problems) })));
+  });
+
+  const others = articles.filter((a) => a.status === "archived");
+  app.replaceChildren(el("div", { class: "step-panel" },
+    stepHead(3, "Needs your decision", "At 4:00 PM, a second check reviews every draft. Articles that pass go live on their own and skip this step. Anything it couldn't fix waits here for you."),
+    cards.length ? el("div", { class: "stack" }, cards)
+      : el("div", { class: "allclear" }, el("strong", { text: "All clear. " }), "Nothing needs your decision right now."),
+    others.length ? el("details", { class: "group" }, el("summary", { text: `Archived articles (${others.length})` }),
+      el("div", { class: "list" }, others.map((a) => el("a", { class: "item", href: `#/review/${a.id}` },
+        el("div", {}, el("div", { class: "t", text: a.title }), el("div", { class: "m" }, el("span", { text: `Written ${fmtDay(a.created_at)}` }))), badge(a.status))))) : null,
+    stepFoot("Approved articles appear under Published.", "Next step: Published", "#/published")));
+}
+
+/* ---------- Published (step 4) ---------- */
+async function renderPublished() {
+  document.title = "Published | GRID Insights admin";
+  const { articles } = await api("articles");
+  const live = articles.filter((a) => a.status === "published").sort((a, b) => new Date(b.published_at) - new Date(a.published_at));
+  const unpublish = async (a) => {
+    if (!(await confirmDialog("Take this article off the website?", "It goes back to Review as a draft, and it is removed from Cody at the next sync. You can publish it again later.", "Unpublish", null, true))) return;
+    await act(() => api(`articles/${a.id}/status`, { method: "POST", body: { status: "draft" } }), "Unpublished.");
+    refreshFlow(); renderPublished();
+  };
+  const grid = el("div", { class: "cards" }, live.map((a) => {
+    const card = el("article", { class: "acard" },
+      el("span", { class: "m", text: `Published ${fmtDay(a.published_at)}, ${plural(a.claims, "cited fact")}` }),
+      el("h3", { text: a.title }),
+      el("div", { class: "row", style: "gap:0.4rem" }, a.cody_status ? codyBadge(a.cody_status) : codyBadge(null)),
+      el("div", { class: "acts" },
+        el("a", { class: "btn primary small", href: `/#/article/${encodeURIComponent(a.slug)}`, target: "_blank", rel: "noopener", text: "View and PDF" }),
+        el("a", { class: "btn small", href: `#/review/${a.id}`, text: "Open" }),
+        el("button", { class: "btn small", type: "button", style: "color:var(--muted)", text: "Unpublish", onclick: () => unpublish(a) })));
+    card.dataset.q = a.title.toLowerCase();
+    return card;
+  }));
+  const search = el("input", { type: "search", id: "pub-q", placeholder: "Search by title" });
+  const none = el("p", { class: "empty", text: "No articles match that search." }); none.hidden = true;
+  search.addEventListener("input", () => {
+    const q = search.value.trim().toLowerCase(); let shown = 0;
+    [...grid.children].forEach((c) => { const hit = !q || c.dataset.q.includes(q); c.hidden = !hit; if (hit) shown++; });
+    none.hidden = shown > 0;
+  });
+  app.replaceChildren(el("div", { class: "step-panel" },
+    stepHead(4, "Live on the website", "These articles are on the GRID Insights website right now. Readers can download each one as a GRID-branded PDF from its page."),
+    live.length ? el("label", { for: "pub-q", style: "max-width:22rem" }, "Find an article", search) : null,
+    live.length ? grid : el("p", { class: "empty", text: "Nothing is published yet." }), none,
+    stepFoot("At 5:00 PM, new articles are sent to Cody.", "Next step: Cody", "#/cody")));
 }
 
 /* ---------- settings ---------- */
@@ -691,13 +935,13 @@ async function renderSettings() {
     await act(() => api("settings", { method: "PUT", body: { config } }), "Settings saved. The next scheduled runs will use them.");
     renderSettings();
   });
-  app.replaceChildren(el("div", {}, el("h1", { text: "Settings" }),
+  app.replaceChildren(el("div", { class: "step-panel" }, el("h1", { text: "Settings" }),
     el("p", { class: "lede", text: "The writer and reviewer tasks load these at the start of every run, and the review screen checks articles against them." }), form));
 }
 
 /* ---------- router ---------- */
 async function route() {
-  const h = location.hash || "#/topics";
+  const h = location.hash || "#/queue";
   try { await api("session"); }
   catch (e) {
     if (e.quiet) return; // 401: the login form is already showing
@@ -710,20 +954,26 @@ async function route() {
     return;
   }
   topbar.hidden = false;
-  const [, tab, sub] = h.match(/^#\/(\w+)(?:\/(\d+))?/) || [];
-  const current = ["topics", "review", "runs", "cody", "settings"].includes(tab) ? tab : "topics";
-  document.querySelectorAll(".tabs a").forEach((a) => { if (a.dataset.tab === current) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
-  app.replaceChildren(el("p", { class: "muted", text: "Loading" }));
-  refreshCounts();
+  document.getElementById("flowwrap").hidden = false;
+  let [, tab, sub] = h.match(/^#\/(\w+)(?:\/(\d+))?/) || [];
+  tab = { topics: "queue", runs: "research" }[tab] || tab;
+  const known = ["queue", "research", "review", "published", "cody", "settings"];
+  const current = known.includes(tab) ? tab : "queue";
+  currentStep = current === "settings" ? "" : current;
+  if (current === "review" && sub) currentStep = ""; // set after the article loads
+  document.getElementById("gear").toggleAttribute("aria-current", current === "settings");
+  app.replaceChildren(el("p", { class: "muted", style: "margin-top:1.25rem", text: "Loading" }));
+  refreshFlow();
   try {
     if (current === "review" && sub) await renderReviewDetail(Number(sub));
-    else if (current === "review") await renderReviewList();
-    else if (current === "runs") await renderRuns();
+    else if (current === "review") await renderReview();
+    else if (current === "research") await renderResearch();
+    else if (current === "published") await renderPublished();
     else if (current === "cody") await renderCody();
     else if (current === "settings") await renderSettings();
     else await renderTopics();
   } catch (e) {
-    if (!e.quiet) app.replaceChildren(el("div", { class: "panel" }, el("h2", { text: "Something went wrong" }), el("p", { class: "muted", text: e.message })));
+    if (!e.quiet) app.replaceChildren(el("div", { class: "step-panel" }, el("h2", { text: "Something went wrong" }), el("p", { class: "muted", text: e.message })));
   }
 }
 window.addEventListener("hashchange", route);
