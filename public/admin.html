@@ -83,7 +83,9 @@ h2 { font-size: 1.05rem; letter-spacing: -0.01em; margin: 0 0 0.75rem; }
   background: var(--subtle); color: var(--muted); }
 .badge.published, .badge.verified, .badge.succeeded, .badge.done { background: var(--good-soft); color: var(--good); }
 .badge.needs_review, .badge.draft, .badge.in_progress, .badge.running, .badge.queued, .badge.held { background: var(--warn-soft); color: var(--warn); }
-.badge.failed, .badge.conflicted, .badge.unverified { background: var(--bad-soft); color: var(--bad); }
+.badge.failed, .badge.conflicted, .badge.unverified, .badge.sync_failed, .badge.error { background: var(--bad-soft); color: var(--bad); }
+.badge.synced { background: var(--good-soft); color: var(--good); }
+.badge.uploaded, .badge.syncing { background: var(--warn-soft); color: var(--warn); }
 .empty { color: var(--muted); padding: 1rem 0; }
 
 /* topics */
@@ -179,6 +181,7 @@ dialog ul { padding-left: 1.2rem; }
       <a href="#/topics" data-tab="topics">Topics <span class="count" id="c-queued" hidden></span></a>
       <a href="#/review" data-tab="review">Review <span class="count" id="c-review" hidden></span></a>
       <a href="#/runs" data-tab="runs">Runs</a>
+      <a href="#/cody" data-tab="cody">Cody</a>
       <a href="#/settings" data-tab="settings">Settings</a>
     </nav>
     <span class="spacer"></span>
@@ -216,6 +219,8 @@ const fmtDay = (iso) => iso ? new Date(iso).toLocaleDateString("en-GB", { day: "
 const label = (s) => ({ needs_review: "Needs review", in_progress: "In progress" }[s] || (s ? s[0].toUpperCase() + s.slice(1) : ""));
 const badge = (s, text) => el("span", { class: `badge ${s || ""}`, text: text || label(s) });
 const plural = (n, w) => `${n} ${w}${n === 1 ? "" : "s"}`;
+const CODY_LABEL = { uploaded: "Sent to Cody", syncing: "Cody learning", synced: "In Cody", sync_failed: "Cody failed", error: "Cody error", removed: "Removed from Cody" };
+const codyBadge = (st) => st ? badge(st, CODY_LABEL[st] || st) : el("span", { class: "badge", text: "Not in Cody yet" });
 
 let toastTimer;
 function toast(msg, isError = false) {
@@ -381,7 +386,7 @@ async function renderReviewList() {
         el("span", { text: a.status === "published" ? `Published ${fmtDay(a.published_at)}` : `Written ${fmtDay(a.created_at)}` }),
         el("span", { text: plural(a.claims, "cited claim") }),
         a.auto_review ? el("span", { text: `Auto-review: ${a.auto_review}` }) : null)),
-    badge(a.status))))
+    el("div", { class: "row", style: "justify-content:flex-end" }, a.status === "published" ? codyBadge(a.cody_status) : null, badge(a.status)))))
     : el("p", { class: "empty", text: reviewFilter === "review" ? "Nothing waiting for review." : "No articles here yet." });
 
   app.replaceChildren(el("div", {},
@@ -392,7 +397,7 @@ async function renderReviewList() {
 
 /* ---------- review detail ---------- */
 async function renderReviewDetail(id) {
-  const { article, claims, checks } = await api(`articles/${id}`);
+  const { article, claims, checks, cody } = await api(`articles/${id}`);
   document.title = `${article.title} | Review`;
   const byId = new Map(claims.map((c) => [Number(c.id), c]));
   let editing = false;
@@ -504,7 +509,9 @@ async function renderReviewDetail(id) {
       el("div", { class: "detail-head" },
         el("a", { href: "#/review", class: "small", text: "Back to review list" }),
         el("div", { class: "row" }, badge(article.status), article.topic ? el("span", { class: "muted small", text: `Topic: ${article.topic}` }) : null,
-          el("span", { class: "muted small", text: `Updated ${fmt(article.updated_at)}` })),
+          el("span", { class: "muted small", text: `Updated ${fmt(article.updated_at)}` }),
+          article.status === "published" || cody ? codyBadge(cody?.status) : null,
+          cody?.error ? el("span", { class: "small", style: "color:var(--bad)", text: cody.error }) : null),
         el("h1", { text: article.title }),
         autoNote, actions),
       checksBox,
@@ -550,6 +557,97 @@ async function renderRuns() {
   })) : el("p", { class: "empty", text: "No runs yet." });
   app.replaceChildren(el("div", {}, el("h1", { text: "Runs" }),
     el("p", { class: "lede", text: "Every scheduled run, newest first. Open one to see its step log or error." }), list));
+}
+
+/* ---------- Cody ---------- */
+async function renderCody() {
+  document.title = "Cody | GRID Insights admin";
+  const data = await api("cody");
+  const counts = {};
+  data.articles.forEach((a) => { const k = a.status || "none"; counts[k] = (counts[k] || 0) + 1; });
+  const progress = el("p", { class: "muted small", style: "margin:0", "aria-live": "polite" });
+
+  const syncBtn = el("button", { class: "btn primary", type: "button", text: "Sync now", disabled: !data.configured });
+  syncBtn.addEventListener("click", async () => {
+    syncBtn.disabled = true;
+    const total = { uploaded: 0, replaced: 0, removed: 0, learned: 0, errors: [] };
+    try {
+      for (let step = 1; step <= 15; step++) {
+        progress.textContent = `Syncing (step ${step})`;
+        const r = await api("cody/sync", { method: "POST" });
+        if (!r.ok) { toast(r.message || "Sync failed.", true); break; }
+        const s = r.summary;
+        total.uploaded += s.uploaded.length; total.replaced += s.replaced.length; total.removed += s.removed.length;
+        total.learned += s.learned; total.errors.push(...s.errors);
+        if (!s.remaining || s.errors.length) break;
+      }
+      const parts = [`${total.uploaded} sent`, `${total.replaced} replaced`, `${total.removed} removed`, `${total.learned} learned`];
+      toast(total.errors.length ? `Sync finished with ${plural(total.errors.length, "problem")}: ${total.errors[0].message}` : `Sync finished: ${parts.join(", ")}.`, total.errors.length > 0);
+    } catch (e) { if (!e.quiet) toast(e.message, true); }
+    renderCody();
+  });
+
+  const foldersBox = el("section", { class: "panel" });
+  if (data.has_key) {
+    foldersBox.append(el("p", { class: "muted small", style: "margin:0", text: "Loading your Cody folders" }));
+    api("cody/folders").then(({ folders, current }) => {
+      const cur = folders.find((f) => f.id === current);
+      const rows = folders.map((f) => el("div", { class: "row", style: "justify-content:space-between; border-top:1px solid var(--border); padding:0.45rem 0" },
+        el("span", {}, el("strong", { text: f.name }), " ", el("code", { class: "small muted", text: f.id }),
+          f.id === current ? el("span", { class: "badge synced", style: "margin-left:0.5rem", text: "Articles go here" }) : null),
+        el("button", { class: "btn small", type: "button", text: "Copy ID", onclick: async () => {
+          try { await navigator.clipboard.writeText(f.id); toast(`Copied the ID of "${f.name}". Paste it into Netlify as CODY_FOLDER_ID.`); }
+          catch { toast(`Folder ID: ${f.id}`); }
+        } })));
+      foldersBox.replaceChildren(...[
+        el("h2", { text: "Your Cody folders" }),
+        current && !cur ? el("p", { class: "small", style: "color:var(--bad)", text: `CODY_FOLDER_ID (${current}) doesn't match any folder below. Copy the right ID into Netlify and redeploy.` }) : null,
+        cur ? el("p", { class: "muted small", text: `Articles are sent to "${cur.name}".` }) : el("p", { class: "muted small", text: "Copy the ID of the folder your bot uses for articles, then add it in Netlify as CODY_FOLDER_ID and redeploy." }),
+        folders.length ? el("div", {}, rows) : el("p", { class: "empty", text: "No folders yet. Create one in Cody first." })].filter(Boolean));
+    }).catch((e) => foldersBox.replaceChildren(el("p", { class: "small", style: "color:var(--bad)", text: e.message })));
+  }
+
+  const setup = data.configured ? null : el("div", { class: "checks bad" },
+    el("strong", { text: "Cody isn't connected yet" }),
+    el("ul", {},
+      el("li", { text: "In Cody: choose the bot, create or pick a folder, and give that bot access to the folder." }),
+      el("li", { text: "In Netlify: add CODY_API_KEY and CODY_FOLDER_ID under Environment variables." }),
+      el("li", { text: "Redeploy under Deploys > Trigger deploy, then come back here." })));
+
+  const list = data.articles.length ? el("div", { class: "list" }, data.articles.map((a) => el("a", { class: "item", href: `#/review/${a.id}` },
+    el("div", {}, el("div", { class: "t", text: a.title }),
+      el("div", { class: "m" },
+        a.sent_at ? el("span", { text: `Sent ${fmt(a.sent_at)}` }) : el("span", { text: `Published ${fmtDay(a.published_at)}` }),
+        a.learned_at ? el("span", { text: `Learned ${fmt(a.learned_at)}` }) : null,
+        a.edited_since ? el("span", { text: "Edited since: will be replaced on next sync" }) : null,
+        a.error ? el("span", { style: "color:var(--bad)", text: a.error }) : null)),
+    codyBadge(a.status))))
+    : el("p", { class: "empty", text: "No published articles yet." });
+
+  const runs = data.runs.length ? el("div", { class: "list" }, data.runs.map((r) => {
+    const s = r.summary || {};
+    const bits = [`${(s.uploaded || []).length} sent`, `${(s.replaced || []).length} replaced`, `${(s.removed || []).length} removed`, `${s.learned || 0} learned`];
+    return el("div", { class: "item" },
+      el("div", {}, el("div", { class: "t", text: `${r.trigger === "manual" ? "Sync now" : "Daily sync"}, ${fmt(r.started_at)}` }),
+        el("div", { class: "m" }, el("span", { text: bits.join(", ") }),
+          r.error || (s.errors || []).length ? el("span", { style: "color:var(--bad)", text: r.error || s.errors[0].message }) : null)),
+      badge(r.error || (s.errors || []).length ? "failed" : "succeeded", r.error || (s.errors || []).length ? "Problem" : "OK"));
+  })) : el("p", { class: "empty", text: "No syncs yet. The daily sync runs at 5:00 PM." });
+
+  app.replaceChildren(el("div", { class: "stack" },
+    el("div", {}, el("h1", { text: "Cody knowledge base" }),
+      el("p", { class: "lede", text: "Every day at 5:00 PM, newly published articles are sent to your Cody folder as GRID-branded PDFs. Edited articles are replaced and unpublished ones are removed, so Cody always matches the website." })),
+    setup,
+    data.has_key ? foldersBox : null,
+    el("section", { class: "panel row", style: "justify-content:space-between" },
+      el("div", { class: "row" },
+        codyBadge("synced"), el("span", { text: String(counts.synced || 0) }),
+        codyBadge("syncing"), el("span", { text: String((counts.syncing || 0) + (counts.uploaded || 0)) }),
+        codyBadge(null), el("span", { text: String(counts.none || 0) }),
+        (counts.error || counts.sync_failed) ? [codyBadge("error"), el("span", { text: String((counts.error || 0) + (counts.sync_failed || 0)) })] : null),
+      el("div", { class: "row" }, progress, syncBtn)),
+    el("section", {}, el("h2", { text: "Articles" }), list),
+    el("section", {}, el("h2", { text: "Recent syncs" }), runs)));
 }
 
 /* ---------- settings ---------- */
@@ -613,7 +711,7 @@ async function route() {
   }
   topbar.hidden = false;
   const [, tab, sub] = h.match(/^#\/(\w+)(?:\/(\d+))?/) || [];
-  const current = ["topics", "review", "runs", "settings"].includes(tab) ? tab : "topics";
+  const current = ["topics", "review", "runs", "cody", "settings"].includes(tab) ? tab : "topics";
   document.querySelectorAll(".tabs a").forEach((a) => { if (a.dataset.tab === current) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
   app.replaceChildren(el("p", { class: "muted", text: "Loading" }));
   refreshCounts();
@@ -621,6 +719,7 @@ async function route() {
     if (current === "review" && sub) await renderReviewDetail(Number(sub));
     else if (current === "review") await renderReviewList();
     else if (current === "runs") await renderRuns();
+    else if (current === "cody") await renderCody();
     else if (current === "settings") await renderSettings();
     else await renderTopics();
   } catch (e) {
