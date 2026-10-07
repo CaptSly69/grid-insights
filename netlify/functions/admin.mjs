@@ -2,6 +2,7 @@
 // Needs two Netlify environment variables: DATABASE_URL and ADMIN_PASSWORD.
 import { neon } from "@neondatabase/serverless";
 import { createHmac, timingSafeEqual } from "node:crypto";
+import { runCodySync, codyConfigured, codyHasKey, listFolders } from "../lib/cody-sync.mjs";
 
 // Which subject area the console manages. Override with a SITE_DOMAIN environment variable in Netlify.
 const DOMAIN = process.env.SITE_DOMAIN || "real_estate_ph";
@@ -136,7 +137,7 @@ export default async (req) => {
   }
   if (!validToken(readCookie(req, COOKIE))) return fail(401, "Please sign in.");
   if (method !== "GET" && req.headers.get("x-admin-request") !== "1") return fail(403, "Request blocked.");
-  if (idPart && !Number.isFinite(id)) return fail(400, "Invalid id.");
+  if (idPart && !Number.isFinite(id) && resource !== "cody") return fail(400, "Invalid id.");
 
   const sql = neon(process.env.DATABASE_URL);
   const body = method === "GET" ? {} : await req.json().catch(() => ({}));
@@ -253,6 +254,7 @@ export default async (req) => {
         const articles = await sql`
           SELECT a.id, a.title, a.slug, a.status, a.created_at, a.updated_at, a.published_at, a.run_id,
                  t.title AS topic, a.critic_report->'auto_review'->>'result' AS auto_review,
+                 (SELECT d.status FROM cody_documents d WHERE d.article_id = a.id) AS cody_status,
                  (SELECT count(*)::int FROM article_claims ac WHERE ac.article_id = a.id) AS claims
             FROM articles a LEFT JOIN topics t ON t.id = a.topic_id
            WHERE a.domain = ${DOMAIN}
@@ -290,8 +292,9 @@ export default async (req) => {
       };
 
       if (method === "GET" && id) {
-        const [claims, cfg] = await Promise.all([loadClaims(), loadSettings()]);
-        return json({ article, claims, checks: runChecks(article, cfg, claims) });
+        const [claims, cfg, cody] = await Promise.all([loadClaims(), loadSettings(),
+          sql`SELECT status, sent_at, learned_at, error, updated_at FROM cody_documents WHERE article_id = ${id}`]);
+        return json({ article, claims, checks: runChecks(article, cfg, claims), cody: cody[0] || null });
       }
 
       if (method === "PUT" && id) {
@@ -362,6 +365,30 @@ export default async (req) => {
           FROM pipeline_runs r LEFT JOIN topics t ON t.id = r.topic_id
          WHERE r.domain = ${DOMAIN} ORDER BY r.id DESC LIMIT 60`;
       return json({ runs });
+    }
+
+    /* ----- Cody knowledge base ----- */
+    if (resource === "cody") {
+      if (method === "GET" && !idPart) {
+        const [articles, runs] = await Promise.all([
+          sql`SELECT a.id, a.title, a.published_at, a.updated_at, d.status, d.sent_at, d.learned_at, d.error,
+                     (d.status = 'synced' AND d.article_updated_at < a.updated_at) AS edited_since
+                FROM articles a LEFT JOIN cody_documents d ON d.article_id = a.id
+               WHERE a.domain = ${DOMAIN} AND (a.status = 'published' OR (d.status IS NOT NULL AND d.status <> 'removed'))
+               ORDER BY a.published_at DESC NULLS LAST`,
+          sql`SELECT id, trigger, started_at, finished_at, summary, error FROM cody_sync_runs ORDER BY id DESC LIMIT 10`,
+        ]);
+        return json({ configured: codyConfigured(), has_key: codyHasKey(), folder: process.env.CODY_FOLDER_ID || null, articles, runs });
+      }
+      if (method === "GET" && idPart === "folders") {
+        if (!codyHasKey()) return fail(400, "Add CODY_API_KEY in Netlify first, then redeploy.");
+        try { return json({ folders: await listFolders(), current: process.env.CODY_FOLDER_ID || null }); }
+        catch (e) { return fail(502, `Cody said: ${e.message}`); }
+      }
+      if (method === "POST" && idPart === "sync") {
+        // One upload per click-step keeps each request inside Netlify's time limit; the page repeats until done.
+        return json(await runCodySync({ trigger: "manual", maxUploads: 1 }));
+      }
     }
 
     /* ----- settings ----- */
