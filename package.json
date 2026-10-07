@@ -1,8 +1,10 @@
 {
-  "name": "strategy-notes-site",
+  "name": "grid-insights-site",
   "private": true,
   "type": "module",
   "dependencies": {
-    "@neondatabase/serverless": "^1.1.0"
+    "@neondatabase/serverless": "^1.1.0",
+    "marked": "18.0.14",
+    "pdfmake": "0.2.20"
   }
 }
